@@ -1,117 +1,48 @@
--- Vytvorenie presne rovnakého GUI ako na obrázku
+-- Roblox Bubble Gum Simulator GUI Script
+-- Spúšťané cez MuMuPlayer a Codex
 
--- Vytvorenie GUI
+-- Inicializácia GUI prvkov
 local ScreenGui = Instance.new("ScreenGui")
-local MainFrame = Instance.new("Frame")
-local PetNameInput = Instance.new("TextBox")
+local Frame = Instance.new("Frame")
+local PetName = Instance.new("TextBox")
 local SpawnButton = Instance.new("TextButton")
-local TopBar = Instance.new("Frame")
 
--- Nastavenie GUI
-ScreenGui.Parent = game.CoreGui
+-- Vlastnosti GUI
+ScreenGui.Name = "PetSpawner"
+ScreenGui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
 
-MainFrame.Parent = ScreenGui
-MainFrame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
-MainFrame.Size = UDim2.new(0, 200, 0, 150)
-MainFrame.Position = UDim2.new(0.5, -100, 0.5, -75)
-MainFrame.Active = true
+Frame.Parent = ScreenGui
+Frame.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
+Frame.BorderSizePixel = 2
+Frame.Position = UDim2.new(0.4, 0, 0.3, 0)
+Frame.Size = UDim2.new(0, 300, 0, 150)
 
--- Horná lišta pre pohyb
-TopBar.Parent = MainFrame
-TopBar.Size = UDim2.new(1, 0, 0, 20)
-TopBar.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
-TopBar.Position = UDim2.new(0, 0, 0, 0)
-TopBar.Active = true
+PetName.Parent = Frame
+PetName.PlaceholderText = "Zadaj meno peta"
+PetName.Position = UDim2.new(0.1, 0, 0.2, 0)
+PetName.Size = UDim2.new(0.8, 0, 0.2, 0)
 
--- Funkcia na pohyb okna
-local dragging
-local dragInput
-local dragStart
-local startPos
+SpawnButton.Parent = Frame
+SpawnButton.Text = "Spawn Pet"
+SpawnButton.Position = UDim2.new(0.1, 0, 0.6, 0)
+SpawnButton.Size = UDim2.new(0.8, 0, 0.2, 0)
 
-local function updateInput(input)
-    local delta = input.Position - dragStart
-    MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+-- Funkcia na spawnovanie peta
+local function spawnPet()
+    local petName = PetName.Text
+    if petName ~= "" then
+        print("Spúšťam animáciu pre peta: " .. petName)
+        -- Simulácia animácie otvorenia vajíčka
+        local args = {
+            [1] = petName
+        }
+        game:GetService("ReplicatedStorage").Events.HatchEgg:FireServer(unpack(args))
+    else
+        warn("Zadaj platné meno peta!")
+    end
 end
 
-TopBar.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        startPos = MainFrame.Position
+-- Pripojenie funkcie k tlačidlu
+SpawnButton.MouseButton1Click:Connect(spawnPet)
 
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
-        end)
-    end
-end)
-
-TopBar.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType.MouseButton1 then
-        dragInput = input
-    end
-end)
-
-game:GetService("UserInputService").InputChanged:Connect(function(input)
-    if input == dragInput and dragging then
-        updateInput(input)
-    end
-end)
-
--- TextBox pre meno peta
-PetNameInput.Parent = MainFrame
-PetNameInput.PlaceholderText = "Pet Name"
-PetNameInput.Size = UDim2.new(1, -20, 0, 30)
-PetNameInput.Position = UDim2.new(0, 10, 0, 30)
-PetNameInput.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
-PetNameInput.TextColor3 = Color3.new(1, 1, 1)
-
--- Spawn tlačidlo
-SpawnButton.Parent = MainFrame
-SpawnButton.Text = "Open Egg"
-SpawnButton.Size = UDim2.new(1, -20, 0, 40)
-SpawnButton.Position = UDim2.new(0, 10, 0, 70)
-SpawnButton.BackgroundColor3 = Color3.new(0.1, 0.3, 0.5)
-SpawnButton.TextColor3 = Color3.new(1, 1, 1)
-
--- Otvorenie animácie na celú obrazovku s prasknutím
-local function openEgg(name)
-    print("Opening Egg for pet:", name)
-
-    -- Vytvorenie animácie GUI
-    local eggFrame = Instance.new("Frame")
-    eggFrame.Parent = ScreenGui
-    eggFrame.Size = UDim2.new(1, 0, 1, 0)
-    eggFrame.BackgroundColor3 = Color3.new(0, 0, 0)
-    eggFrame.BackgroundTransparency = 0.5
-
-    -- Vajce
-    local eggImage = Instance.new("ImageLabel")
-    eggImage.Parent = eggFrame
-    eggImage.Size = UDim2.new(0, 300, 0, 300)
-    eggImage.Position = UDim2.new(0.5, -150, 0.5, -150)
-    eggImage.Image = "rbxassetid://7054112288" -- Náhrada za animované vajce
-    eggImage.BackgroundTransparency = 1
-
-    -- Text
-    local petLabel = Instance.new("TextLabel")
-    petLabel.Parent = eggFrame
-    petLabel.Size = UDim2.new(1, 0, 0, 50)
-    petLabel.Position = UDim2.new(0, 0, 0.8, 0)
-    petLabel.Text = "You received: " .. name
-    petLabel.TextColor3 = Color3.new(1, 1, 1)
-    petLabel.BackgroundTransparency = 1
-    petLabel.TextScaled = true
-
-    -- Animácia prasknutia
-    wait(1.5)
-    eggImage.Image = "rbxassetid://7054112288" -- Tu môžeš dať textúru prasknutého vajca
-    wait(1.5)
-    eggFrame:Destroy()
-end
-
-SpawnButton.MouseButton1Click:Connect(function()
-    openEgg(PetNameInput.Text)
-end)
+print("GUI pre spawnovanie petov bolo úspešne načítané.")
