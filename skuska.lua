@@ -27,34 +27,25 @@ SpawnButton.Text = "Spawn Pet"
 SpawnButton.Position = UDim2.new(0.1, 0, 0.6, 0)
 SpawnButton.Size = UDim2.new(0.8, 0, 0.2, 0)
 
--- Funkcia na spawnovanie peta
+-- Funkcia na otvorenie vajíčka a spawnovanie peta
 local function spawnPet()
     local petName = PetName.Text
     if petName ~= "" then
-        print("Spúšťam animáciu pre peta: " .. petName)
+        print("Spúšťam animáciu otvárania vajíčka pre peta: " .. petName)
 
-        -- Skúšame rôzne cesty a eventy
-        local success = false
-        local paths = {
-            "ReplicatedStorage.SpawnPet",
-            "Workspace.SpawnPet",
-            "ReplicatedStorage.HatchEgg",
-            "Workspace.HatchEgg",
-            "Players.LocalPlayer.SpawnPet"
+        local args = {
+            [1] = "Easter Egg",  -- Názov vajíčka, ktoré sa otvára
+            [2] = 1,              -- Počet vajíčok, ktoré sa majú otvoriť
+            [3] = {petName}       -- Meno peta, ktorý má padnúť
         }
 
-        for _, path in ipairs(paths) do
-            local event = game:FindFirstChild(path, true)
-            if event and event:IsA("RemoteEvent") then
-                event:FireServer(petName)
-                print("Event odoslaný: " .. path)
-                success = true
-                break
-            end
-        end
-
-        if not success then
-            warn("Nepodarilo sa nájsť event na spawnovanie peta.")
+        -- Skúšame spustiť animáciu cez event
+        local event = game:GetService("ReplicatedStorage"):FindFirstChild("HatchEgg")
+        if event then
+            event:FireServer(unpack(args))
+            print("Animácia otvorenia vajíčka bola spustená!")
+        else
+            warn("Nepodarilo sa nájsť event 'HatchEgg'.")
         end
     else
         warn("Zadaj platné meno peta!")
