@@ -5,8 +5,6 @@
 local ScreenGui = Instance.new("ScreenGui")
 local MainFrame = Instance.new("Frame")
 local PetNameInput = Instance.new("TextBox")
-local ShinyButton = Instance.new("TextButton")
-local MythicButton = Instance.new("TextButton")
 local SpawnButton = Instance.new("TextButton")
 local TopBar = Instance.new("Frame")
 
@@ -15,8 +13,8 @@ ScreenGui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGu
 
 MainFrame.Parent = ScreenGui
 MainFrame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
-MainFrame.Size = UDim2.new(0, 200, 0, 250)
-MainFrame.Position = UDim2.new(0.5, -100, 0.5, -125)
+MainFrame.Size = UDim2.new(0, 200, 0, 150)
+MainFrame.Position = UDim2.new(0.5, -100, 0.5, -75)
 MainFrame.Active = true
 
 -- Horná lišta pre pohyb
@@ -38,35 +36,13 @@ PetNameInput.TextColor3 = Color3.new(1, 1, 1)
 SpawnButton.Parent = MainFrame
 SpawnButton.Text = "Open Egg"
 SpawnButton.Size = UDim2.new(1, -20, 0, 40)
-SpawnButton.Position = UDim2.new(0, 10, 0, 150)
+SpawnButton.Position = UDim2.new(0, 10, 0, 80)
 SpawnButton.BackgroundColor3 = Color3.new(0.1, 0.3, 0.5)
 SpawnButton.TextColor3 = Color3.new(1, 1, 1)
 
--- Funkčnosť tlačidiel
-local shinyEnabled = false
-local mythicEnabled = false
-
-ShinyButton.MouseButton1Click:Connect(function()
-    shinyEnabled = not shinyEnabled
-    ShinyButton.Text = shinyEnabled and "Shiny: On" or "Shiny: Off"
-end)
-
-MythicButton.MouseButton1Click:Connect(function()
-    mythicEnabled = not mythicEnabled
-    MythicButton.Text = mythicEnabled and "Mythic: On" or "Mythic: Off"
-end)
-
--- Otvorenie vajíčka s animáciou a eventom
+-- Funkcia na otvorenie vajíčka s animáciou
 local function openEgg(name)
     print("Opening Egg for pet:", name)
-
-    -- Pridáme Shiny alebo Mythic ak sú zapnuté
-    if shinyEnabled then
-        name = "Shiny " .. name
-    end
-    if mythicEnabled then
-        name = "Mythic " .. name
-    end
 
     -- Spustenie animácie cez HatchEgg event
     local args = {
@@ -84,6 +60,12 @@ local function openEgg(name)
     end
 end
 
+-- Funkcia po kliknutí na tlačidlo
 SpawnButton.MouseButton1Click:Connect(function()
-    openEgg(PetNameInput.Text)
+    local petName = PetNameInput.Text
+    if petName and petName ~= "" then
+        openEgg(petName)
+    else
+        warn("Zadaj platné meno peta!")
+    end
 end)
