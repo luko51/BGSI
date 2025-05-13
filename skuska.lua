@@ -1,5 +1,4 @@
--- Roblox Bubble Gum Simulator GUI Script
--- Spúšťané cez MuMuPlayer a Codex
+-- Vytvorenie presne rovnakého GUI ako na obrázku
 
 -- Vytvorenie GUI
 local ScreenGui = Instance.new("ScreenGui")
@@ -9,7 +8,7 @@ local SpawnButton = Instance.new("TextButton")
 local TopBar = Instance.new("Frame")
 
 -- Nastavenie GUI
-ScreenGui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+ScreenGui.Parent = game.CoreGui
 
 MainFrame.Parent = ScreenGui
 MainFrame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
@@ -36,36 +35,50 @@ PetNameInput.TextColor3 = Color3.new(1, 1, 1)
 SpawnButton.Parent = MainFrame
 SpawnButton.Text = "Open Egg"
 SpawnButton.Size = UDim2.new(1, -20, 0, 40)
-SpawnButton.Position = UDim2.new(0, 10, 0, 80)
+SpawnButton.Position = UDim2.new(0, 10, 0, 70)
 SpawnButton.BackgroundColor3 = Color3.new(0.1, 0.3, 0.5)
 SpawnButton.TextColor3 = Color3.new(1, 1, 1)
 
--- Funkcia na otvorenie vajíčka s animáciou
+-- Otvorenie animácie na celú obrazovku s prasknutím
 local function openEgg(name)
     print("Opening Egg for pet:", name)
 
-    -- Spustenie animácie cez HatchEgg event
-    local args = {
-        [1] = "Easter Egg",
-        [2] = 1,
-        [3] = {name}
-    }
+    -- Vytvorenie animácie GUI
+    local eggFrame = Instance.new("Frame")
+    eggFrame.Parent = ScreenGui
+    eggFrame.Size = UDim2.new(1, 0, 1, 0)
+    eggFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+    eggFrame.BackgroundTransparency = 0.5
 
-    local event = game:GetService("ReplicatedStorage"):FindFirstChild("HatchEgg")
-    if event then
-        event:FireServer(unpack(args))
-        print("Animácia otvorenia vajíčka bola spustená pre: " .. name)
-    else
-        warn("Nepodarilo sa nájsť event 'HatchEgg'.")
-    end
+    -- Vajce
+    local eggImage = Instance.new("ImageLabel")
+    eggImage.Parent = eggFrame
+    eggImage.Size = UDim2.new(0, 300, 0, 300)
+    eggImage.Position = UDim2.new(0.5, -150, 0.5, -150)
+    eggImage.Image = "rbxassetid://7041512717" -- Náhrada za animované vajce
+    eggImage.BackgroundTransparency = 1
+
+    -- Text
+    local petLabel = Instance.new("TextLabel")
+    petLabel.Parent = eggFrame
+    petLabel.Size = UDim2.new(1, 0, 0, 50)
+    petLabel.Position = UDim2.new(0, 0, 0.8, 0)
+    petLabel.Text = "You received: " .. name
+    petLabel.TextColor3 = Color3.new(1, 1, 1)
+    petLabel.BackgroundTransparency = 1
+    petLabel.TextScaled = true
+
+    -- Animácia prasknutia
+    wait(1.5)
+    eggImage.Image = "rbxassetid://7041512717" -- Placeholder pre rozbité vajce (môžeme nahradiť lepším)
+    wait(1.5)
+    eggFrame:Destroy()
 end
 
--- Funkcia po kliknutí na tlačidlo
 SpawnButton.MouseButton1Click:Connect(function()
-    local petName = PetNameInput.Text
-    if petName and petName ~= "" then
-        openEgg(petName)
+    if PetNameInput.Text ~= "" then
+        openEgg(PetNameInput.Text)
     else
-        warn("Zadaj platné meno peta!")
+        warn("Musíš zadať meno peta!")
     end
 end)
