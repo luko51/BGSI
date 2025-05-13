@@ -120,15 +120,21 @@ end)
 -- Otvorenie vajička s animáciou
 local function openEgg(name)
     print("Opening Egg for pet:", name)
-    -- Tu môžeme spraviť efekt otvárania vajíčka
     local egg = Instance.new("Part")
-    egg.Size = Vector3.new(2, 2, 2)
+    egg.Size = Vector3.new(3, 3, 3)
     egg.BrickColor = BrickColor.new("Bright yellow")
     egg.Anchored = true
+    egg.Shape = "Ball"
     egg.Position = game.Players.LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(0, 5, 0)
     egg.Parent = workspace
+
+    -- Animácia otvorenia vajíčka
     wait(2)
+    egg.BrickColor = BrickColor.new("Bright green")
+    wait(1)
     egg:Destroy()
+
+    -- Výpis získaného peta
     print("You received:", name)
 end
 
