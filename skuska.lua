@@ -27,12 +27,18 @@ SpawnButton.Text = "Spawn Pet"
 SpawnButton.Position = UDim2.new(0.1, 0, 0.6, 0)
 SpawnButton.Size = UDim2.new(0.8, 0, 0.2, 0)
 
+-- DEBUG: Výpis všetkých eventov
+print("--- Výpis všetkých dostupných eventov ---")
+for i, v in pairs(game:GetService("ReplicatedStorage").Events:GetChildren()) do
+    print(i, v.Name)
+end
+print("----------------------------------------")
+
 -- Funkcia na spawnovanie peta
 local function spawnPet()
     local petName = PetName.Text
     if petName ~= "" then
         print("Spúšťam animáciu pre peta: " .. petName)
-        -- Simulácia animácie otvorenia vajíčka
         local args = {
             [1] = petName
         }
