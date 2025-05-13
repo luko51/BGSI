@@ -127,7 +127,7 @@ local function spawnPet(name, amount, shiny, mythic)
         petPart.Name = "PetBody"
         petPart.Size = Vector3.new(2, 2, 2)
         petPart.BrickColor = BrickColor.new("Bright blue")
-        petPart.Anchored = false
+        petPart.Anchored = true
         petPart.Parent = pet
         pet.PrimaryPart = petPart
 
