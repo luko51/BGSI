@@ -1,99 +1,116 @@
--- Vytvorenie GUI
+-- Vytvorenie moderného GUI s otváracími kategóriami
 local ScreenGui = Instance.new("ScreenGui")
 local MainFrame = Instance.new("Frame")
 local Sidebar = Instance.new("Frame")
 local Title = Instance.new("TextLabel")
-local CloseButton = Instance.new("TextButton")
 local MinimizeButton = Instance.new("TextButton")
+local CloseButton = Instance.new("TextButton")
 
--- Funkcia na pohyb oknom
-local dragging = false
-local dragInput, dragStart, startPos
+-- Sekcie s podkategóriami
+local sections = {
+    {name = "Duplication", subcategories = {"Textové okno"}},
+    {name = "Eggs", subcategories = {"Common", "Rare", "Epic", "Legendary"}},
+    {name = "Rifts", subcategories = {"Small Rift", "Large Rift", "Boss Rift"}}
+}
 
-local function update(input)
-    local delta = input.Position - dragStart
-    MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-end
-
-MainFrame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        startPos = MainFrame.Position
-
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
-        end)
-    end
-end)
-
-MainFrame.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement then
-        dragInput = input
-    end
-end)
-
-MainFrame.InputChanged:Connect(function(input)
-    if input == dragInput and dragging then
-        update(input)
-    end
-end)
-
--- Nastavenie pre minimalizovanie a zatvorenie okna
-CloseButton.Parent = MainFrame
-CloseButton.Text = "X"
-CloseButton.Size = UDim2.new(0, 25, 0, 25)
-CloseButton.Position = UDim2.new(0.97, -30, 0, 5)
-CloseButton.BackgroundColor3 = Color3.new(0.8, 0, 0)
-
-MinimizeButton.Parent = MainFrame
-MinimizeButton.Text = "-"
-MinimizeButton.Size = UDim2.new(0, 25, 0, 25)
-MinimizeButton.Position = UDim2.new(0.92, -60, 0, 5)
-MinimizeButton.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
-
--- Sekcie
-local sections = {"Core", "Enchants", "Eggs", "Rifts", "Potions", "Webhook", "Duplicate"}
+local buttons = {}
+local subcategoryFrames = {}
 
 -- Nastavenie GUI vlastností
 ScreenGui.Parent = game.CoreGui
 
 MainFrame.Parent = ScreenGui
-MainFrame.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
-MainFrame.Position = UDim2.new(0.5, -250, 0.5, -150)
-MainFrame.Size = UDim2.new(0, 500, 0, 300)
+MainFrame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+MainFrame.Position = UDim2.new(0.3, 0, 0.2, 0)
+MainFrame.Size = UDim2.new(0, 600, 0, 400)
 MainFrame.Visible = true
+MainFrame.BorderSizePixel = 0
 
 -- Sidebar pre sekcie
 Sidebar.Parent = MainFrame
-Sidebar.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+Sidebar.BackgroundColor3 = Color3.new(0.08, 0.08, 0.08)
 Sidebar.Size = UDim2.new(0.2, 0, 1, 0)
 Sidebar.Position = UDim2.new(0, 0, 0, 0)
+Sidebar.BorderSizePixel = 0
 
--- Tlačidlá sekcií
-for index, section in ipairs(sections) do
-    local btn = Instance.new("TextButton")
-    btn.Parent = Sidebar
-    btn.Text = section
-    btn.Size = UDim2.new(1, -10, 0.1, 0)
-    btn.Position = UDim2.new(0, 5, (index - 1) * 0.1 + 0.05, 0)
-    btn.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
-    btn.TextColor3 = Color3.new(1, 1, 1)
-end
+-- Lišta s minimalizáciou a zatvorením
+MinimizeButton.Parent = MainFrame
+MinimizeButton.Text = "-"
+MinimizeButton.Size = UDim2.new(0, 30, 0, 30)
+MinimizeButton.Position = UDim2.new(0.92, 0, 0.02, 0)
+MinimizeButton.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
+MinimizeButton.TextColor3 = Color3.new(1, 1, 1)
 
--- Hlavný obsah sekcie (placeholder na ďalšie možnosti)
+CloseButton.Parent = MainFrame
+CloseButton.Text = "X"
+CloseButton.Size = UDim2.new(0, 30, 0, 30)
+CloseButton.Position = UDim2.new(0.95, 0, 0.02, 0)
+CloseButton.BackgroundColor3 = Color3.new(0.5, 0, 0)
+CloseButton.TextColor3 = Color3.new(1, 1, 1)
+
+-- Funkcie minimalizácie a zatvorenia
+MinimizeButton.MouseButton1Click:Connect(function()
+    MainFrame.Visible = not MainFrame.Visible
+end)
+
+CloseButton.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+-- Hlavný obsah panelu
 local ContentFrame = Instance.new("Frame")
 ContentFrame.Parent = MainFrame
-ContentFrame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+ContentFrame.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
 ContentFrame.Size = UDim2.new(0.8, 0, 1, 0)
 ContentFrame.Position = UDim2.new(0.2, 0, 0, 0)
 
--- Okno pre Duplicate sekciu
-local DuplicateInput = Instance.new("TextBox")
-DuplicateInput.Parent = ContentFrame
-DuplicateInput.Size = UDim2.new(0.5, 0, 0.1, 0)
-DuplicateInput.Position = UDim2.new(0.25, 0, 0.4, 0)
-DuplicateInput.PlaceholderText = "Zadaj názov objektu na duplikovanie"
-DuplicateInput.Text = ""
+-- Generovanie tlačidiel sekcií s podkategóriami
+local offset = 5
+for _, section in ipairs(sections) do
+    local button = Instance.new("TextButton")
+    button.Parent = Sidebar
+    button.Text = section.name
+    button.Size = UDim2.new(1, -10, 0, 30)
+    button.Position = UDim2.new(0, 5, 0, offset)
+    button.BackgroundColor3 = Color3.new(0.12, 0.12, 0.12)
+    button.TextColor3 = Color3.new(1, 1, 1)
+    button.BorderSizePixel = 0
+    offset = offset + 35
+
+    -- Vytváranie podkategórií
+    local subFrame = Instance.new("Frame")
+    subFrame.Parent = Sidebar
+    subFrame.Size = UDim2.new(1, -10, 0, #section.subcategories * 25)
+    subFrame.Position = UDim2.new(0, 5, 0, offset)
+    subFrame.BackgroundTransparency = 1
+    subFrame.Visible = false
+
+    local subOffset = 0
+    for _, sub in ipairs(section.subcategories) do
+        local subButton = Instance.new("TextButton")
+        subButton.Parent = subFrame
+        subButton.Text = sub
+        subButton.Size = UDim2.new(1, 0, 0, 25)
+        subButton.Position = UDim2.new(0, 0, 0, subOffset)
+        subButton.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
+        subButton.TextColor3 = Color3.new(1, 1, 1)
+        subOffset = subOffset + 25
+
+        -- Obsah po kliknutí na subButton
+        subButton.MouseButton1Click:Connect(function()
+            ContentFrame:ClearAllChildren()
+            local title = Instance.new("TextLabel")
+            title.Parent = ContentFrame
+            title.Text = sub
+            title.Size = UDim2.new(1, 0, 0.1, 0)
+            title.BackgroundColor3 = Color3.new(0.18, 0.18, 0.18)
+            title.TextColor3 = Color3.new(1, 1, 1)
+        end)
+    end
+
+    button.MouseButton1Click:Connect(function()
+        subFrame.Visible = not subFrame.Visible
+    end)
+
+    subcategoryFrames[section.name] = subFrame
+end
