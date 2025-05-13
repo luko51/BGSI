@@ -29,9 +29,21 @@ SpawnButton.Size = UDim2.new(0.8, 0, 0.2, 0)
 
 -- DEBUG: Výpis všetkých eventov
 print("--- Výpis všetkých dostupných eventov ---")
-for i, v in pairs(game:GetService("ReplicatedStorage").Events:GetChildren()) do
-    print(i, v.Name)
+
+local function scanForEvents(parent, prefix)
+    prefix = prefix or ""
+    for _, obj in pairs(parent:GetChildren()) do
+        if obj:IsA("RemoteEvent") or obj:IsA("RemoteFunction") then
+            print(prefix .. obj.Name)
+        end
+        scanForEvents(obj, prefix .. obj.Name .. "/")
+    end
 end
+
+-- Prehľadanie Workspace a Player
+scanForEvents(game.Workspace, "Workspace/")
+scanForEvents(game.Players.LocalPlayer, "Player/")
+
 print("----------------------------------------")
 
 -- Funkcia na spawnovanie peta
@@ -42,7 +54,7 @@ local function spawnPet()
         local args = {
             [1] = petName
         }
-        game:GetService("ReplicatedStorage").Events.HatchEgg:FireServer(unpack(args))
+        -- Potrebujeme zistiť správny event
     else
         warn("Zadaj platné meno peta!")
     end
