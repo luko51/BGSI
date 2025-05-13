@@ -120,7 +120,14 @@ end)
 -- Zoznam petov, ktoré je možné spawnuť
 local validPets = {"Lord Shock", "Frost Dominus", "Phoenix", "Rainbow Dragon", "Shadow Griffin"}
 
--- Funkcia na spawnovanie peta s animáciou
+-- Kontrola a vytvorenie Inventory
+if not game.Players.LocalPlayer.Backpack:FindFirstChild("Inventory") then
+    local Inventory = Instance.new("Folder")
+    Inventory.Name = "Inventory"
+    Inventory.Parent = game.Players.LocalPlayer.Backpack
+end
+
+-- Funkcia na spawnovanie peta
 local function spawnPet(name, amount, shiny, mythic)
     if table.find(validPets, name) then
         for i = 1, tonumber(amount) do
@@ -129,13 +136,8 @@ local function spawnPet(name, amount, shiny, mythic)
             pet.Parent = workspace
             pet:SetPrimaryPartCFrame(game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame + Vector3.new(0, 5, 0))
 
-            -- Vizuálny efekt
-            local effect = Instance.new("ParticleEmitter")
-            effect.Texture = "rbxassetid://1184032778"  -- Efekt particles
-            effect.Lifetime = NumberRange.new(1)
-            effect.Rate = 50
-            effect.Parent = pet
-
+            -- Pridanie do inventára
+            pet:Clone().Parent = game.Players.LocalPlayer.Backpack.Inventory
             print("Spawned Pet:", pet.Name)
         end
     else
