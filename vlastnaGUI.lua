@@ -1,63 +1,64 @@
 -- Vytvorenie GUI
 local ScreenGui = Instance.new("ScreenGui")
 local MainFrame = Instance.new("Frame")
+local Sidebar = Instance.new("Frame")
 local Title = Instance.new("TextLabel")
 
--- Inicializácia tlačidiel
-local TeleportButton = Instance.new("TextButton")
-local AutoCollectButton = Instance.new("TextButton")
-local SpeedBoostButton = Instance.new("TextButton")
-local PetInput = Instance.new("TextBox")
-local AddPetButton = Instance.new("TextButton")
-local PetList = Instance.new("ScrollingFrame")
+-- Sekcie
+local CoreButton = Instance.new("TextButton")
+local EnchantsButton = Instance.new("TextButton")
+local EggsButton = Instance.new("TextButton")
+local RiftsButton = Instance.new("TextButton")
+local PotionsButton = Instance.new("TextButton")
+local WebhookButton = Instance.new("TextButton")
 
 -- Nastavenie GUI vlastností
 ScreenGui.Parent = game.CoreGui
 
 MainFrame.Parent = ScreenGui
-MainFrame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
-MainFrame.Position = UDim2.new(0.5, -150, 0.5, -100)
-MainFrame.Size = UDim2.new(0, 300, 0, 200)
+MainFrame.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
+MainFrame.Position = UDim2.new(0.5, -250, 0.5, -150)
+MainFrame.Size = UDim2.new(0, 500, 0, 300)
+MainFrame.Visible = true
 
-Title.Parent = MainFrame
-Title.Text = "Game Enhancer"
-Title.Size = UDim2.new(1, 0, 0.2, 0)
-Title.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+-- Sidebar pre sekcie
+Sidebar.Parent = MainFrame
+Sidebar.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+Sidebar.Size = UDim2.new(0.2, 0, 1, 0)
+Sidebar.Position = UDim2.new(0, 0, 0, 0)
 
--- Teleport tlačidlo
-TeleportButton.Parent = MainFrame
-TeleportButton.Text = "Teleport"
-TeleportButton.Size = UDim2.new(0.5, -5, 0.15, 0)
-TeleportButton.Position = UDim2.new(0, 0, 0.2, 0)
+-- Tlačidlá sekcií
+local buttons = {
+    {button = CoreButton, text = "Core", position = 0.05},
+    {button = EnchantsButton, text = "Enchants", position = 0.15},
+    {button = EggsButton, text = "Eggs", position = 0.25},
+    {button = RiftsButton, text = "Rifts", position = 0.35},
+    {button = PotionsButton, text = "Potions", position = 0.45},
+    {button = WebhookButton, text = "Webhook", position = 0.55}
+}
 
-TeleportButton.MouseButton1Click:Connect(function()
-    local player = game.Players.LocalPlayer
-    player.Character.HumanoidRootPart.CFrame = CFrame.new(0, 50, 0)
-end)
+for _, info in pairs(buttons) do
+    local btn = info.button
+    btn.Parent = Sidebar
+    btn.Text = info.text
+    btn.Size = UDim2.new(1, -10, 0.1, 0)
+    btn.Position = UDim2.new(0, 5, info.position, 0)
+    btn.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+    btn.TextColor3 = Color3.new(1, 1, 1)
+end
 
--- Auto Collect tlačidlo
-AutoCollectButton.Parent = MainFrame
-AutoCollectButton.Text = "Auto Collect"
-AutoCollectButton.Size = UDim2.new(0.5, -5, 0.15, 0)
-AutoCollectButton.Position = UDim2.new(0.5, 5, 0.2, 0)
+-- Hlavný obsah sekcie (placeholder na ďalšie možnosti)
+local ContentFrame = Instance.new("Frame")
+ContentFrame.Parent = MainFrame
+ContentFrame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+ContentFrame.Size = UDim2.new(0.8, 0, 1, 0)
+ContentFrame.Position = UDim2.new(0.2, 0, 0, 0)
 
--- Speed Boost tlačidlo
-SpeedBoostButton.Parent = MainFrame
-SpeedBoostButton.Text = "Speed Boost"
-SpeedBoostButton.Size = UDim2.new(1, 0, 0.15, 0)
-SpeedBoostButton.Position = UDim2.new(0, 0, 0.35, 0)
-
--- Input pre zadávanie petov
-PetInput.Parent = MainFrame
-PetInput.PlaceholderText = "Zadaj meno peta"
-PetInput.Size = UDim2.new(0.7, 0, 0.15, 0)
-PetInput.Position = UDim2.new(0, 0, 0.55, 0)
-
--- Tlačidlo na pridanie do zoznamu
-AddPetButton.Parent = MainFrame
-AddPetButton.Text = "Pridať Peta"
-AddPetButton.Size = UDim2.new(0.3, 0, 0.15, 0)
-AddPetButton.Position = UDim2.new(0.7, 0, 0.55, 0)
+-- Nadpis
+Title.Parent = ContentFrame
+Title.Text = "Core Settings"
+Title.Size = UDim2.new(1, 0, 0.1, 0)
+Title.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
 
 -- Scrollovacia tabuľka
 PetList.Parent = MainFrame
