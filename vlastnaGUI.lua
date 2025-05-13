@@ -117,21 +117,16 @@ MythicButton.MouseButton1Click:Connect(function()
     MythicButton.Text = mythicEnabled and "Mythic: On" or "Mythic: Off"
 end)
 
--- Funkcia na spawnovanie peta
+-- Funkcia na spawnovanie peta bez Roblox Studia
 local function spawnPet(name, amount, shiny, mythic)
-    local petModel = game:GetService("ReplicatedStorage"):FindFirstChild(name)
-    if not petModel then
-        warn("Model sa nenašiel v ReplicatedStorage, vytváram placeholder...")
-        petModel = Instance.new("Part")
-        petModel.Size = Vector3.new(3, 3, 3)
-        petModel.BrickColor = BrickColor.new("Bright yellow")
-        petModel.Name = name
-        petModel.Anchored = true
+    for i = 1, tonumber(amount) do
+        local petModel = Instance.new("Part")
+        petModel.Size = Vector3.new(2, 2, 2)
+        petModel.BrickColor = BrickColor.new("Bright blue")
+        petModel.Name = name .. (shiny and "_Shiny" or "") .. (mythic and "_Mythic" or "")
+        petModel.Position = game.Players.LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(0, 5 + (i * 3), 0)
+        petModel.Anchored = false
         petModel.Parent = workspace
-    else
-        petModel = petModel:Clone()
-        petModel.Parent = workspace
-        petModel:SetPrimaryPartCFrame(game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame + Vector3.new(0, 5, 0))
         print("Spawned Pet:", petModel.Name)
     end
 end
