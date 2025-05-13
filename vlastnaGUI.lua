@@ -97,7 +97,7 @@ MythicButton.TextColor3 = Color3.new(1, 1, 1)
 
 -- Spawn tlačidlo
 SpawnButton.Parent = MainFrame
-SpawnButton.Text = "Spawn Pet"
+SpawnButton.Text = "Open Egg"
 SpawnButton.Size = UDim2.new(1, -20, 0, 40)
 SpawnButton.Position = UDim2.new(0, 10, 0, 150)
 SpawnButton.BackgroundColor3 = Color3.new(0.1, 0.3, 0.5)
@@ -117,20 +117,21 @@ MythicButton.MouseButton1Click:Connect(function()
     MythicButton.Text = mythicEnabled and "Mythic: On" or "Mythic: Off"
 end)
 
--- Funkcia na spawnovanie peta bez Roblox Studia
-local function spawnPet(name, amount, shiny, mythic)
-    for i = 1, tonumber(amount) do
-        local petModel = Instance.new("Part")
-        petModel.Size = Vector3.new(2, 2, 2)
-        petModel.BrickColor = BrickColor.new("Bright blue")
-        petModel.Name = name .. (shiny and "_Shiny" or "") .. (mythic and "_Mythic" or "")
-        petModel.Position = game.Players.LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(0, 5 + (i * 3), 0)
-        petModel.Anchored = false
-        petModel.Parent = workspace
-        print("Spawned Pet:", petModel.Name)
-    end
+-- Otvorenie vajička s animáciou
+local function openEgg(name)
+    print("Opening Egg for pet:", name)
+    -- Tu môžeme spraviť efekt otvárania vajíčka
+    local egg = Instance.new("Part")
+    egg.Size = Vector3.new(2, 2, 2)
+    egg.BrickColor = BrickColor.new("Bright yellow")
+    egg.Anchored = true
+    egg.Position = game.Players.LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(0, 5, 0)
+    egg.Parent = workspace
+    wait(2)
+    egg:Destroy()
+    print("You received:", name)
 end
 
 SpawnButton.MouseButton1Click:Connect(function()
-    spawnPet(PetNameInput.Text, PetAmountInput.Text, shinyEnabled, mythicEnabled)
+    openEgg(PetNameInput.Text)
 end)
