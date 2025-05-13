@@ -117,31 +117,24 @@ MythicButton.MouseButton1Click:Connect(function()
     MythicButton.Text = mythicEnabled and "Mythic: On" or "Mythic: Off"
 end)
 
--- Zoznam petov, ktoré je možné spawnuť
-local validPets = {"Lord Shock", "Frost Dominus", "Phoenix", "Rainbow Dragon", "Shadow Griffin"}
-
--- Kontrola a vytvorenie Inventory
-if not game.Players.LocalPlayer.Backpack:FindFirstChild("Inventory") then
-    local Inventory = Instance.new("Folder")
-    Inventory.Name = "Inventory"
-    Inventory.Parent = game.Players.LocalPlayer.Backpack
-end
-
 -- Funkcia na spawnovanie peta
 local function spawnPet(name, amount, shiny, mythic)
-    if table.find(validPets, name) then
-        for i = 1, tonumber(amount) do
-            local pet = Instance.new("Model")
-            pet.Name = name .. (shiny and "_Shiny" or "") .. (mythic and "_Mythic" or "")
-            pet.Parent = workspace
-            pet:SetPrimaryPartCFrame(game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame + Vector3.new(0, 5, 0))
+    for i = 1, tonumber(amount) do
+        local pet = Instance.new("Model")
+        pet.Name = name .. (shiny and "_Shiny" or "") .. (mythic and "_Mythic" or "")
 
-            -- Pridanie do inventára
-            pet:Clone().Parent = game.Players.LocalPlayer.Backpack.Inventory
-            print("Spawned Pet:", pet.Name)
-        end
-    else
-        warn("Pet s týmto menom neexistuje")
+        local petPart = Instance.new("Part")
+        petPart.Name = "PetBody"
+        petPart.Size = Vector3.new(2, 2, 2)
+        petPart.BrickColor = BrickColor.new("Bright blue")
+        petPart.Anchored = false
+        petPart.Parent = pet
+        pet.PrimaryPart = petPart
+
+        pet:SetPrimaryPartCFrame(game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame + Vector3.new(0, 5, 0))
+        pet.Parent = workspace
+
+        print("Spawned Pet:", pet.Name)
     end
 end
 
