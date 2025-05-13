@@ -76,7 +76,7 @@ SpawnButton.Position = UDim2.new(0, 10, 0, 70)
 SpawnButton.BackgroundColor3 = Color3.new(0.1, 0.3, 0.5)
 SpawnButton.TextColor3 = Color3.new(1, 1, 1)
 
--- Otvorenie animácie na celú obrazovku
+-- Otvorenie animácie na celú obrazovku s prasknutím
 local function openEgg(name)
     print("Opening Egg for pet:", name)
 
@@ -105,8 +105,10 @@ local function openEgg(name)
     petLabel.BackgroundTransparency = 1
     petLabel.TextScaled = true
 
-    -- Animácia
-    wait(3)
+    -- Animácia prasknutia
+    wait(1.5)
+    eggImage.Image = "rbxassetid://7054112288" -- Tu môžeš dať textúru prasknutého vajca
+    wait(1.5)
     eggFrame:Destroy()
 end
 
