@@ -5,7 +5,6 @@
 local ScreenGui = Instance.new("ScreenGui")
 local MainFrame = Instance.new("Frame")
 local PetNameInput = Instance.new("TextBox")
-local PetAmountInput = Instance.new("TextBox")
 local ShinyButton = Instance.new("TextButton")
 local MythicButton = Instance.new("TextButton")
 local SpawnButton = Instance.new("TextButton")
@@ -43,9 +42,31 @@ SpawnButton.Position = UDim2.new(0, 10, 0, 150)
 SpawnButton.BackgroundColor3 = Color3.new(0.1, 0.3, 0.5)
 SpawnButton.TextColor3 = Color3.new(1, 1, 1)
 
--- Otvorenie vajička s animáciou a eventom
+-- Funkčnosť tlačidiel
+local shinyEnabled = false
+local mythicEnabled = false
+
+ShinyButton.MouseButton1Click:Connect(function()
+    shinyEnabled = not shinyEnabled
+    ShinyButton.Text = shinyEnabled and "Shiny: On" or "Shiny: Off"
+end)
+
+MythicButton.MouseButton1Click:Connect(function()
+    mythicEnabled = not mythicEnabled
+    MythicButton.Text = mythicEnabled and "Mythic: On" or "Mythic: Off"
+end)
+
+-- Otvorenie vajíčka s animáciou a eventom
 local function openEgg(name)
     print("Opening Egg for pet:", name)
+
+    -- Pridáme Shiny alebo Mythic ak sú zapnuté
+    if shinyEnabled then
+        name = "Shiny " .. name
+    end
+    if mythicEnabled then
+        name = "Mythic " .. name
+    end
 
     -- Spustenie animácie cez HatchEgg event
     local args = {
@@ -57,7 +78,7 @@ local function openEgg(name)
     local event = game:GetService("ReplicatedStorage"):FindFirstChild("HatchEgg")
     if event then
         event:FireServer(unpack(args))
-        print("Animácia otvorenia vajíčka bola spustená!")
+        print("Animácia otvorenia vajíčka bola spustená pre: " .. name)
     else
         warn("Nepodarilo sa nájsť event 'HatchEgg'.")
     end
