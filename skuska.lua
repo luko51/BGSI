@@ -49,7 +49,7 @@ TopBar.InputBegan:Connect(function(input)
 end)
 
 TopBar.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType.MouseButton1 then
         dragInput = input
     end
 end)
@@ -76,40 +76,38 @@ SpawnButton.Position = UDim2.new(0, 10, 0, 70)
 SpawnButton.BackgroundColor3 = Color3.new(0.1, 0.3, 0.5)
 SpawnButton.TextColor3 = Color3.new(1, 1, 1)
 
--- Animácia otvorenia vajíčka
+-- Otvorenie animácie na celú obrazovku
 local function openEgg(name)
     print("Opening Egg for pet:", name)
 
-    -- Vytvorenie animácie vajíčka
-    local egg = Instance.new("Part")
-    egg.Size = Vector3.new(3, 3, 3)
-    egg.BrickColor = BrickColor.new("Bright yellow")
-    egg.Anchored = true
-    egg.Shape = "Ball"
-    egg.Position = game.Players.LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(0, 5, 0)
-    egg.Parent = workspace
+    -- Vytvorenie animácie GUI
+    local eggFrame = Instance.new("Frame")
+    eggFrame.Parent = ScreenGui
+    eggFrame.Size = UDim2.new(1, 0, 1, 0)
+    eggFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+    eggFrame.BackgroundTransparency = 0.5
 
-    -- Efekty
-    wait(1)
-    egg.BrickColor = BrickColor.new("Bright green")
-    wait(0.5)
+    -- Vajce
+    local eggImage = Instance.new("ImageLabel")
+    eggImage.Parent = eggFrame
+    eggImage.Size = UDim2.new(0, 300, 0, 300)
+    eggImage.Position = UDim2.new(0.5, -150, 0.5, -150)
+    eggImage.Image = "rbxassetid://7054112288" -- Náhrada za animované vajce
+    eggImage.BackgroundTransparency = 1
 
-    -- Výpis získaného peta
-    local gui = Instance.new("BillboardGui")
-    gui.Size = UDim2.new(0, 200, 0, 50)
-    gui.StudsOffset = Vector3.new(0, 2, 0)
-    gui.Parent = egg
+    -- Text
+    local petLabel = Instance.new("TextLabel")
+    petLabel.Parent = eggFrame
+    petLabel.Size = UDim2.new(1, 0, 0, 50)
+    petLabel.Position = UDim2.new(0, 0, 0.8, 0)
+    petLabel.Text = "You received: " .. name
+    petLabel.TextColor3 = Color3.new(1, 1, 1)
+    petLabel.BackgroundTransparency = 1
+    petLabel.TextScaled = true
 
-    local textLabel = Instance.new("TextLabel")
-    textLabel.Size = UDim2.new(1, 0, 1, 0)
-    textLabel.Text = "You received: " .. name
-    textLabel.TextColor3 = Color3.new(1, 1, 1)
-    textLabel.BackgroundTransparency = 1
-    textLabel.TextScaled = true
-    textLabel.Parent = gui
-
-    wait(2)
-    egg:Destroy()
+    -- Animácia
+    wait(3)
+    eggFrame:Destroy()
 end
 
 SpawnButton.MouseButton1Click:Connect(function()
