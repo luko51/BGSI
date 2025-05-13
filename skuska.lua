@@ -11,14 +11,15 @@ local ShinyButton = Instance.new("TextButton")
 local MythicButton = Instance.new("TextButton")
 local SpawnButton = Instance.new("TextButton")
 local TopBar = Instance.new("Frame")
+local PetDisplay = Instance.new("TextLabel")
 
 -- Nastavenie GUI
 ScreenGui.Parent = game.CoreGui
 
 MainFrame.Parent = ScreenGui
 MainFrame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
-MainFrame.Size = UDim2.new(0, 200, 0, 250)
-MainFrame.Position = UDim2.new(0.5, -100, 0.5, -125)
+MainFrame.Size = UDim2.new(0, 200, 0, 300)
+MainFrame.Position = UDim2.new(0.5, -100, 0.5, -150)
 MainFrame.Active = true
 
 -- Horná lišta pre pohyb
@@ -68,39 +69,19 @@ SpawnButton.Position = UDim2.new(0, 10, 0, 150)
 SpawnButton.BackgroundColor3 = Color3.new(0.1, 0.3, 0.5)
 SpawnButton.TextColor3 = Color3.new(1, 1, 1)
 
--- Funkčnosť tlačidiel
-local shinyEnabled = false
-local mythicEnabled = false
-
-ShinyButton.MouseButton1Click:Connect(function()
-    shinyEnabled = not shinyEnabled
-    ShinyButton.Text = shinyEnabled and "Shiny: On" or "Shiny: Off"
-end)
-
-MythicButton.MouseButton1Click:Connect(function()
-    mythicEnabled = not mythicEnabled
-    MythicButton.Text = mythicEnabled and "Mythic: On" or "Mythic: Off"
-end)
+-- Zobrazenie peta po otvorení
+PetDisplay.Parent = MainFrame
+PetDisplay.Text = ""
+PetDisplay.Size = UDim2.new(1, -20, 0, 30)
+PetDisplay.Position = UDim2.new(0, 10, 0, 200)
+PetDisplay.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+PetDisplay.TextColor3 = Color3.new(1, 1, 1)
+PetDisplay.TextScaled = true
 
 -- Otvorenie vajíčka s animáciou
 local function openEgg(name)
     print("Opening Egg for pet:", name)
-    local egg = Instance.new("Part")
-    egg.Size = Vector3.new(3, 3, 3)
-    egg.BrickColor = BrickColor.new("Bright yellow")
-    egg.Anchored = true
-    egg.Shape = "Ball"
-    egg.Position = game.Players.LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(0, 5, 0)
-    egg.Parent = workspace
-
-    -- Animácia otvorenia vajíčka
-    wait(2)
-    egg.BrickColor = BrickColor.new("Bright green")
-    wait(1)
-    egg:Destroy()
-
-    -- Výpis získaného peta
-    print("You received:", name)
+    PetDisplay.Text = "You received: " .. name
 end
 
 SpawnButton.MouseButton1Click:Connect(function()
