@@ -1,6 +1,5 @@
--- Vytvorenie presne rovnakého GUI ako na obrázku
-
 -- Vytvorenie GUI
+
 local ScreenGui = Instance.new("ScreenGui")
 local MainFrame = Instance.new("Frame")
 local PetNameInput = Instance.new("TextBox")
@@ -22,6 +21,43 @@ TopBar.Size = UDim2.new(1, 0, 0, 20)
 TopBar.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
 TopBar.Position = UDim2.new(0, 0, 0, 0)
 TopBar.Active = true
+
+-- Funkcia na pohyb okna
+local dragging
+local dragInput
+local dragStart
+local startPos
+
+local function updateInput(input)
+    local delta = input.Position - dragStart
+    MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+TopBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = MainFrame.Position
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+TopBar.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType.MouseButton1 then
+        dragInput = input
+    end
+end)
+
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        updateInput(input)
+    end
+end)
 
 -- TextBox pre meno peta
 PetNameInput.Parent = MainFrame
@@ -53,9 +89,9 @@ local function openEgg(name)
     -- Vajce
     local eggImage = Instance.new("ImageLabel")
     eggImage.Parent = eggFrame
-    eggImage.Size = UDim2.new(0, 300, 0, 300)
-    eggImage.Position = UDim2.new(0.5, -150, 0.5, -150)
-    eggImage.Image = "rbxassetid://7041512717" -- Náhrada za animované vajce
+    eggImage.Size = UDim2.new(0, 400, 0, 400)
+    eggImage.Position = UDim2.new(0.5, -200, 0.5, -200)
+    eggImage.Image = "rbxassetid://987654321" -- Nahradiť správnym assetom
     eggImage.BackgroundTransparency = 1
 
     -- Text
@@ -70,15 +106,11 @@ local function openEgg(name)
 
     -- Animácia prasknutia
     wait(1.5)
-    eggImage.Image = "rbxassetid://7041512717" -- Placeholder pre rozbité vajce (môžeme nahradiť lepším)
+    eggImage.Image = "rbxassetid://123456789" -- Nahradiť správnym assetom pre prasknuté vajce
     wait(1.5)
     eggFrame:Destroy()
 end
 
 SpawnButton.MouseButton1Click:Connect(function()
-    if PetNameInput.Text ~= "" then
-        openEgg(PetNameInput.Text)
-    else
-        warn("Musíš zadať meno peta!")
-    end
+    openEgg(PetNameInput.Text)
 end)
