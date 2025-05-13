@@ -25,8 +25,6 @@ TopBar.Parent = MainFrame
 TopBar.Size = UDim2.new(1, 0, 0, 20)
 TopBar.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
 TopBar.Position = UDim2.new(0, 0, 0, 0)
-TopBar.Active = true
-TopBar.Draggable = true
 
 -- TextBox pre meno peta
 PetNameInput.Parent = MainFrame
@@ -82,7 +80,17 @@ MythicButton.MouseButton1Click:Connect(function()
     MythicButton.Text = mythicEnabled and "Mythic: On" or "Mythic: Off"
 end)
 
+-- Funkcia na spawnovanie peta
+local function spawnPet(name, amount, shiny, mythic)
+    for i = 1, tonumber(amount) do
+        local pet = Instance.new("Model")
+        pet.Name = name .. (shiny and "_Shiny" or "") .. (mythic and "_Mythic" or "")
+        pet.Parent = workspace
+        print("Spawned Pet:", pet.Name)
+    end
+end
+
 SpawnButton.MouseButton1Click:Connect(function()
     print("Spawning Pet:", PetNameInput.Text, "Amount:", PetAmountInput.Text, "Shiny:", shinyEnabled, "Mythic:", mythicEnabled)
-    -- Tu môžeš pridať funkciu na spawnovanie v hre
+    spawnPet(PetNameInput.Text, PetAmountInput.Text, shinyEnabled, mythicEnabled)
 end)
