@@ -120,13 +120,22 @@ end)
 -- Zoznam petov, ktoré je možné spawnuť
 local validPets = {"Lord Shock", "Frost Dominus", "Phoenix", "Rainbow Dragon", "Shadow Griffin"}
 
--- Funkcia na spawnovanie peta
+-- Funkcia na spawnovanie peta s animáciou
 local function spawnPet(name, amount, shiny, mythic)
     if table.find(validPets, name) then
         for i = 1, tonumber(amount) do
             local pet = Instance.new("Model")
             pet.Name = name .. (shiny and "_Shiny" or "") .. (mythic and "_Mythic" or "")
             pet.Parent = workspace
+            pet:SetPrimaryPartCFrame(game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame + Vector3.new(0, 5, 0))
+
+            -- Vizuálny efekt
+            local effect = Instance.new("ParticleEmitter")
+            effect.Texture = "rbxassetid://1184032778"  -- Efekt particles
+            effect.Lifetime = NumberRange.new(1)
+            effect.Rate = 50
+            effect.Parent = pet
+
             print("Spawned Pet:", pet.Name)
         end
     else
