@@ -18,13 +18,50 @@ MainFrame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
 MainFrame.Size = UDim2.new(0, 200, 0, 250)
 MainFrame.Position = UDim2.new(0.5, -100, 0.5, -125)
 MainFrame.Active = true
-MainFrame.Draggable = true
 
 -- Horná lišta pre pohyb
 TopBar.Parent = MainFrame
 TopBar.Size = UDim2.new(1, 0, 0, 20)
 TopBar.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
 TopBar.Position = UDim2.new(0, 0, 0, 0)
+TopBar.Active = true
+
+-- Funkcia na pohyb okna
+local dragging
+local dragInput
+local dragStart
+local startPos
+
+local function updateInput(input)
+    local delta = input.Position - dragStart
+    MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+TopBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = MainFrame.Position
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+TopBar.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        updateInput(input)
+    end
+end)
 
 -- TextBox pre meno peta
 PetNameInput.Parent = MainFrame
@@ -80,17 +117,23 @@ MythicButton.MouseButton1Click:Connect(function()
     MythicButton.Text = mythicEnabled and "Mythic: On" or "Mythic: Off"
 end)
 
+-- Zoznam petov, ktoré je možné spawnuť
+local validPets = {"Lord Shock", "Frost Dominus", "Phoenix", "Rainbow Dragon", "Shadow Griffin"}
+
 -- Funkcia na spawnovanie peta
 local function spawnPet(name, amount, shiny, mythic)
-    for i = 1, tonumber(amount) do
-        local pet = Instance.new("Model")
-        pet.Name = name .. (shiny and "_Shiny" or "") .. (mythic and "_Mythic" or "")
-        pet.Parent = workspace
-        print("Spawned Pet:", pet.Name)
+    if table.find(validPets, name) then
+        for i = 1, tonumber(amount) do
+            local pet = Instance.new("Model")
+            pet.Name = name .. (shiny and "_Shiny" or "") .. (mythic and "_Mythic" or "")
+            pet.Parent = workspace
+            print("Spawned Pet:", pet.Name)
+        end
+    else
+        warn("Pet s týmto menom neexistuje")
     end
 end
 
 SpawnButton.MouseButton1Click:Connect(function()
-    print("Spawning Pet:", PetNameInput.Text, "Amount:", PetAmountInput.Text, "Shiny:", shinyEnabled, "Mythic:", mythicEnabled)
     spawnPet(PetNameInput.Text, PetAmountInput.Text, shinyEnabled, mythicEnabled)
 end)
