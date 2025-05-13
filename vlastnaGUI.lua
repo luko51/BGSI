@@ -119,17 +119,20 @@ end)
 
 -- Funkcia na spawnovanie peta
 local function spawnPet(name, amount, shiny, mythic)
-    local success, petModel = pcall(function()
-        return game:GetService("ReplicatedStorage"):FindFirstChild(name):Clone()
-    end)
-
-    if success and petModel then
-        petModel.Name = name .. (shiny and "_Shiny" or "") .. (mythic and "_Mythic" or "")
+    local petModel = game:GetService("ReplicatedStorage"):FindFirstChild(name)
+    if not petModel then
+        warn("Model sa nenašiel v ReplicatedStorage, vytváram placeholder...")
+        petModel = Instance.new("Part")
+        petModel.Size = Vector3.new(3, 3, 3)
+        petModel.BrickColor = BrickColor.new("Bright yellow")
+        petModel.Name = name
+        petModel.Anchored = true
+        petModel.Parent = workspace
+    else
+        petModel = petModel:Clone()
         petModel.Parent = workspace
         petModel:SetPrimaryPartCFrame(game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame + Vector3.new(0, 5, 0))
         print("Spawned Pet:", petModel.Name)
-    else
-        warn("Pet model sa nenašiel v ReplicatedStorage")
     end
 end
 
