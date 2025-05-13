@@ -27,34 +27,35 @@ SpawnButton.Text = "Spawn Pet"
 SpawnButton.Position = UDim2.new(0.1, 0, 0.6, 0)
 SpawnButton.Size = UDim2.new(0.8, 0, 0.2, 0)
 
--- DEBUG: Výpis všetkých eventov
-print("--- Výpis všetkých dostupných eventov ---")
-
-local function scanForEvents(parent, prefix)
-    prefix = prefix or ""
-    for _, obj in pairs(parent:GetChildren()) do
-        if obj:IsA("RemoteEvent") or obj:IsA("RemoteFunction") then
-            print(prefix .. obj.Name)
-        end
-        scanForEvents(obj, prefix .. obj.Name .. "/")
-    end
-end
-
--- Prehľadanie Workspace a Player
-scanForEvents(game.Workspace, "Workspace/")
-scanForEvents(game.Players.LocalPlayer, "Player/")
-
-print("----------------------------------------")
-
 -- Funkcia na spawnovanie peta
 local function spawnPet()
     local petName = PetName.Text
     if petName ~= "" then
         print("Spúšťam animáciu pre peta: " .. petName)
-        local args = {
-            [1] = petName
+
+        -- Skúšame rôzne cesty a eventy
+        local success = false
+        local paths = {
+            "ReplicatedStorage.SpawnPet",
+            "Workspace.SpawnPet",
+            "ReplicatedStorage.HatchEgg",
+            "Workspace.HatchEgg",
+            "Players.LocalPlayer.SpawnPet"
         }
-        -- Potrebujeme zistiť správny event
+
+        for _, path in ipairs(paths) do
+            local event = game:FindFirstChild(path, true)
+            if event and event:IsA("RemoteEvent") then
+                event:FireServer(petName)
+                print("Event odoslaný: " .. path)
+                success = true
+                break
+            end
+        end
+
+        if not success then
+            warn("Nepodarilo sa nájsť event na spawnovanie peta.")
+        end
     else
         warn("Zadaj platné meno peta!")
     end
