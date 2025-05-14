@@ -64,35 +64,35 @@ EggTypeInput.TextColor3 = Color3.new(1, 1, 1)
 -- Shiny Label
 ShinyLabel.Parent = MainFrame
 ShinyLabel.Text = "Shiny:"
-ShinyLabel.Size = UDim2.new(0.5, -15, 0, 20)
+ShinyLabel.Size = UDim2.new(0.25, -10, 0, 30)
 ShinyLabel.Position = UDim2.new(0, 10, 0, 130)
 ShinyLabel.BackgroundTransparency = 1
 ShinyLabel.TextColor3 = Color3.new(1, 1, 1)
 ShinyLabel.Font = Enum.Font.GothamBold
 ShinyLabel.TextSize = 14
 
+-- Shiny Button
+ShinyButton.Parent = MainFrame
+ShinyButton.Size = UDim2.new(0.25, -10, 0, 30)
+ShinyButton.Position = UDim2.new(0.25, 5, 0, 130)
+ShinyButton.BackgroundColor3 = Color3.new(0.8, 0.1, 0.1)
+ShinyButton.TextColor3 = Color3.new(1, 1, 1)
+ShinyButton.Text = ""
+
 -- Mythic Label
 MythicLabel.Parent = MainFrame
 MythicLabel.Text = "Mythic:"
-MythicLabel.Size = UDim2.new(0.5, -15, 0, 20)
-MythicLabel.Position = UDim2.new(0.5, 5, 0, 130)
+MythicLabel.Size = UDim2.new(0.25, -10, 0, 30)
+MythicLabel.Position = UDim2.new(0.5, 10, 0, 130)
 MythicLabel.BackgroundTransparency = 1
 MythicLabel.TextColor3 = Color3.new(1, 1, 1)
 MythicLabel.Font = Enum.Font.GothamBold
 MythicLabel.TextSize = 14
 
--- Shiny Button
-ShinyButton.Parent = MainFrame
-ShinyButton.Size = UDim2.new(0.5, -15, 0, 30)
-ShinyButton.Position = UDim2.new(0, 10, 0, 150)
-ShinyButton.BackgroundColor3 = Color3.new(0.8, 0.1, 0.1)
-ShinyButton.TextColor3 = Color3.new(1, 1, 1)
-ShinyButton.Text = ""
-
 -- Mythic Button
 MythicButton.Parent = MainFrame
-MythicButton.Size = UDim2.new(0.5, -15, 0, 30)
-MythicButton.Position = UDim2.new(0.5, 5, 0, 150)
+MythicButton.Size = UDim2.new(0.25, -10, 0, 30)
+MythicButton.Position = UDim2.new(0.75, 5, 0, 130)
 MythicButton.BackgroundColor3 = Color3.new(0.8, 0.1, 0.1)
 MythicButton.TextColor3 = Color3.new(1, 1, 1)
 MythicButton.Text = ""
@@ -101,7 +101,7 @@ MythicButton.Text = ""
 HatchButton.Parent = MainFrame
 HatchButton.Text = "Hatch Pet"
 HatchButton.Size = UDim2.new(1, -20, 0, 40)
-HatchButton.Position = UDim2.new(0, 10, 0, 200)
+HatchButton.Position = UDim2.new(0, 10, 0, 180)
 HatchButton.BackgroundColor3 = Color3.new(0.1, 0.3, 0.5)
 HatchButton.TextColor3 = Color3.new(1, 1, 1)
 
