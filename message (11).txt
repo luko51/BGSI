@@ -1,202 +1,116 @@
+-- Služby Robloxu
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
-local StarterGui = game:GetService("StarterGui")
+local TweenService = game:GetService("TweenService")
+local Lighting = game:GetService("Lighting")
 
--- Player setup
+-- Nastavenie hráča
 local player = Players.LocalPlayer
-if not player then warn("[BGSI Pet Spawner] Player not found!") return end
-local playerGui = player:WaitForChild("PlayerGui", 5)
-if not playerGui then warn("[BGSI Pet Spawner] PlayerGui not found!") return end
-
--- Load HatchEgg module
-local eggModule
-local success, result = pcall(function()
-    local hatchEgg = ReplicatedStorage:WaitForChild("Client", 5):WaitForChild("Effects", 5):WaitForChild("HatchEgg", 5)
-    return require(hatchEgg)
-end)
-if success then
-    eggModule = result
-else
-    warn("[BGSI Pet Spawner] Failed to load HatchEgg: " .. tostring(result))
-    eggModule = { Play = function() warn("[BGSI Pet Spawner] HatchEgg missing.") end }
+if not player then
+    warn("[Visual Hack] Hráč nebol nájdený!")
+    return
 end
+local playerGui = player:WaitForChild("PlayerGui", 5)
+if not playerGui then
+    warn("[Visual Hack] PlayerGui nebolo nájdené!")
+    return
+end
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+local rootPart = character:WaitForChild("HumanoidRootPart")
 
--- Egg Configurations
-local eggs = {
-    ["Void Egg"] = {
-        Speed = 1.5,
-        Name = "Void Egg",
-        Pets = {
-            { Deleted = false, Pet = { Mythic = true, Shiny = true, Name = "NULLVoid", Type = "Pet" }, New = false }
-        }
-    },
-    ["Common Egg"] = {
-        Speed = 1.5,
-        Name = "Common Egg",
-        Pets = {
-            { Deleted = false, Pet = { Mythic = true, Shiny = true, Name = "King Doggy", Type = "Pet" }, New = false }
-        }
-    },
-    ["Aura Egg"] = {
-        Speed = 1.5,
-        Name = "Aura Egg",
-        Pets = {
-            { Deleted = false, Pet = { Mythic = true, Shiny = true, Name = "MAN FACE GOD", Type = "Pet" }, New = false }
-        }
-    },
-    ["Nightmare Egg"] = {
-        Speed = 1.5,
-        Name = "Nightmare Egg",
-        Pets = {
-            { Deleted = false, Pet = { Mythic = true, Shiny = true, Name = "The Overlord", Type = "Pet" }, New = false }
-        }
-    },
-    ["100M Egg"] = {
-        Speed = 1.5,
-        Name = "100M Egg",
-        Pets = {
-            { Deleted = false, Pet = { Mythic = true, Shiny = true, Name = "Royal Trophy", Type = "Pet" }, New = false }
-        }
-    }
+-- Konfigurácia hacku
+local hackConfig = {
+    espEnabled = false,
+    autoFarmEnabled = false,
+    highlightColor = Color3.fromRGB(255, 0, 0),
+    glowEnabled = false,
+    speedHackEnabled = false,
+    speedMultiplier = 2,
+    farmRadius = 50,
+    glowIntensity = 2,
+    espDistance = 1000
 }
 
-local loadingTime = 5
-local messages = {
-    "LOADING CONFIGS...",
-    "BYPASSING DATABASE...",
-    "LOADING SCRIPT...",
-    "BYPASSED ANTI CHEAT : DONE...",
-    "FULLY LOADED...",
-    "done!"
+-- Zoznam objektov na zvýraznenie
+local targetObjects = {
+    "Egg", "Chest", "Reward", "Coin", "Gem", "Treasure"
 }
 
-local loadingGui = Instance.new("ScreenGui", playerGui)
-loadingGui.Name = "BGSI_LoadingScreen"
-loadingGui.ResetOnSpawn = false
-loadingGui.IgnoreGuiInset = true
-loadingGui.DisplayOrder = 100
+-- Funkcia na vytvorenie GUI
+local function createGui()
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "VisualHackGui"
+    screenGui.Parent = playerGui
+    screenGui.ResetOnSpawn = false
+    screenGui.IgnoreGuiInset = true
+    screenGui.DisplayOrder = 100
 
-local frame = Instance.new("Frame", loadingGui)
-frame.Size = UDim2.new(1, 0, 1, 0)
-frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    -- Hlavný rámec
+    local mainFrame = Instance.new("Frame")
+    mainFrame.Size = UDim2.new(0, 400, 0, 500)
+    mainFrame.Position = UDim2.new(0.5, -200, 0.5, -250)
+    mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    mainFrame.BorderSizePixel = 0
+    mainFrame.Parent = screenGui
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 12)
+    corner.Parent = mainFrame
 
-local bgImage = Instance.new("ImageLabel", frame)
-bgImage.Size = UDim2.new(1, 0, 1, 0)
-bgImage.Image = "rbxassetid://2151741365"
-bgImage.ImageTransparency = 0.5
-bgImage.BackgroundTransparency = 1
-bgImage.ScaleType = Enum.ScaleType.Stretch
-
-local progressFrame = Instance.new("Frame", frame)
-progressFrame.Size = UDim2.new(0.6, 0, 0, 40)
-progressFrame.Position = UDim2.new(0.2, 0, 0.5, -20)
-progressFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-Instance.new("UICorner", progressFrame).CornerRadius = UDim.new(0, 8)
-
-local progressFill = Instance.new("Frame", progressFrame)
-progressFill.Size = UDim2.new(0, 0, 1, 0)
-progressFill.BackgroundColor3 = Color3.fromRGB(24, 24, 24) -- Green Progress Bar
-Instance.new("UICorner", progressFill).CornerRadius = UDim.new(0, 8)
-
-local progressText = Instance.new("TextLabel", progressFrame)
-progressText.Size = UDim2.new(1, 0, 0, 20)
-progressText.Position = UDim2.new(0, 0, -1, -10)
-progressText.Text = "0%"
-progressText.TextColor3 = Color3.fromRGB(255, 255, 255)
-progressText.BackgroundTransparency = 1
-progressText.Font = Enum.Font.GothamBold
-progressText.TextSize = 18
-
-local loadingLabel = Instance.new("TextLabel", frame)
-loadingLabel.Size = UDim2.new(0.8, 0, 0, 50)
-loadingLabel.Position = UDim2.new(0.1, 0, 0.5, 30)
-loadingLabel.Text = messages[1]
-loadingLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-loadingLabel.BackgroundTransparency = 1
-loadingLabel.Font = Enum.Font.GothamBold
-loadingLabel.TextSize = 28
-
--- Progress animation
-local startTime = tick()
-RunService:BindToRenderStep("LoadingUpdate", Enum.RenderPriority.Camera.Value + 1, function()
-    local elapsed = tick() - startTime
-    local progress = math.clamp(elapsed / loadingTime, 0, 1)
-    progressFill.Size = UDim2.new(progress, 0, 1, 0)
-    progressText.Text = math.floor(progress * 100) .. "%"
-
-    local msgIndex = math.min(#messages, math.floor(elapsed) + 1)
-    loadingLabel.Text = messages[msgIndex]
-
-    if elapsed >= loadingTime then
-        RunService:UnbindFromRenderStep("LoadingUpdate")
-        loadingGui:Destroy()
-        showMainGui()
-    end
-end)
-
--- Main GUI
-function showMainGui()
-    local gui = Instance.new("ScreenGui", playerGui)
-    gui.Name = "BGSI_PetSpawner"
-    gui.ResetOnSpawn = false
-    gui.IgnoreGuiInset = true
-    gui.DisplayOrder = 100
-
-    local main = Instance.new("Frame", gui)
-    main.Size = UDim2.new(0, 350, 0, 450)
-    main.Position = UDim2.new(0.5, -175, 0.5, -225)
-    -- Gradient Dark Green Theme fading to Gray
-    local gradient = Instance.new("UIGradient", main)
-    gradient.Color = ColorSequence.new(Color3.fromRGB(40, 40, 40), Color3.fromRGB(60, 60, 60))
+    -- Gradient na pozadí
+    local gradient = Instance.new("UIGradient")
+    gradient.Color = ColorSequence.new(Color3.fromRGB(30, 30, 30), Color3.fromRGB(50, 50, 50))
     gradient.Rotation = 45
-    Instance.new("UICorner", main).CornerRadius = UDim.new(0, 12)
+    gradient.Parent = mainFrame
 
-    local title = Instance.new("TextLabel", main)
-    title.Size = UDim2.new(1, 0, 0, 40)
-    title.Text = "BGSI | SECRET HATCHER"
-    title.BackgroundTransparency = 1
-    title.TextColor3 = Color3.fromRGB(255, 255, 255)
-    title.Font = Enum.Font.GothamBold
-    title.TextSize = 20
+    -- Nadpis
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Size = UDim2.new(1, 0, 0, 40)
+    titleLabel.Position = UDim2.new(0, 0, 0, 0)
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Text = "Visual Hack v1.0"
+    titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    titleLabel.Font = Enum.Font.GothamBold
+    titleLabel.TextSize = 24
+    titleLabel.Parent = mainFrame
 
-    local credit = Instance.new("TextLabel", main)
-    credit.Size = UDim2.new(1, 0, 0, 20)
-    credit.Position = UDim2.new(0, 0, 1, -30)
-    credit.Text = "@devsaii"
-    credit.BackgroundTransparency = 1
-    credit.TextColor3 = Color3.fromRGB(200, 200, 200)
-    credit.Font = Enum.Font.Gotham
-    credit.TextSize = 14
-    credit.TextXAlignment = Enum.TextXAlignment.Center
+    -- Tlačidlo na zatvorenie
+    local closeButton = Instance.new("TextButton")
+    closeButton.Size = UDim2.new(0, 30, 0, 30)
+    closeButton.Position = UDim2.new(1, -40, 0, 5)
+    closeButton.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+    closeButton.Text = "X"
+    closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    closeButton.Font = Enum.Font.GothamBold
+    closeButton.TextSize = 16
+    closeButton.Parent = mainFrame
+    local closeCorner = Instance.new("UICorner")
+    closeCorner.CornerRadius = UDim.new(0, 6)
+    closeCorner.Parent = closeButton
 
-    local close = Instance.new("TextButton", main)
-    close.Size = UDim2.new(0, 30, 0, 30)
-    close.Position = UDim2.new(1, -35, 0, 5)
-    close.Text = "X"
-    close.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
-    close.TextColor3 = Color3.new(1, 1, 1)
-    close.Font = Enum.Font.GothamBold
-    close.TextSize = 16
-    Instance.new("UICorner", close).CornerRadius = UDim.new(0, 6)
-    close.MouseButton1Click:Connect(function() gui:Destroy() end)
+    -- Funkcia na zatvorenie GUI
+    closeButton.MouseButton1Click:Connect(function()
+        screenGui:Destroy()
+    end)
 
-    -- Dragging logic
+    -- Dragovacia logika
     local dragging = false
-    local dragInput, startPos, dragStart
-    main.InputBegan:Connect(function(input)
+    local dragInput, dragStart, startPos
+    mainFrame.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             dragging = true
             dragStart = input.Position
-            startPos = main.Position
+            startPos = mainFrame.Position
             input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then dragging = false end
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
             end)
         end
     end)
-    main.InputChanged:Connect(function(input)
+    mainFrame.InputChanged:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseMovement then
             dragInput = input
         end
@@ -204,92 +118,212 @@ function showMainGui()
     UserInputService.InputChanged:Connect(function(input)
         if dragging and input == dragInput then
             local delta = input.Position - dragStart
-            main.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+            mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
         end
     end)
 
-    -- Tier selection
-    local selectedTier = "MythicShiny"
-    local tierMap = {
-        ["Mythic Shiny"] = { Mythic = true, Shiny = true },
-        ["Mythic"] = { Mythic = true, Shiny = false },
-        ["Shiny"] = { Mythic = false, Shiny = true },
-        ["Normal"] = { Mythic = false, Shiny = false },
-    }
-
-    local tierLabel = Instance.new("TextLabel", main)
-    tierLabel.Size = UDim2.new(1, -20, 0, 20)
-    tierLabel.Position = UDim2.new(0, 10, 0, 50)
-    tierLabel.BackgroundTransparency = 1
-    tierLabel.Text = "Select Pet Tier:"
-    tierLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    tierLabel.Font = Enum.Font.Gotham
-    tierLabel.TextSize = 14
-
-    local tierY = 75
-    for tierName, flags in pairs(tierMap) do
-        local btn = Instance.new("TextButton", main)
-        btn.Size = UDim2.new(0.9, 0, 0, 25)
-        btn.Position = UDim2.new(0.05, 0, 0, tierY)
-        btn.Text = tierName
-        btn.BackgroundColor3 = Color3.fromRGB(80, 80, 80) -- Default gray button
-        btn.TextColor3 = Color3.new(1, 1, 1)
-        btn.Font = Enum.Font.GothamBold
-        btn.TextSize = 14
-        Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
-
-        -- Hover effect
-        btn.MouseEnter:Connect(function()
-            btn.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Red on hover
+    -- Funkcia na vytvorenie tlačidla
+    local function createButton(name, positionY, callback)
+        local button = Instance.new("TextButton")
+        button.Size = UDim2.new(0.9, 0, 0, 40)
+        button.Position = UDim2.new(0.05, 0, 0, positionY)
+        button.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+        button.Text = name
+        button.TextColor3 = Color3.fromRGB(255, 255, 255)
+        button.Font = Enum.Font.GothamBold
+        button.TextSize = 16
+        button.Parent = mainFrame
+        local btnCorner = Instance.new("UICorner")
+        btnCorner.CornerRadius = UDim.new(0, 8)
+        btnCorner.Parent = button
+        button.MouseButton1Click:Connect(callback)
+        button.MouseEnter:Connect(function()
+            button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
         end)
-        btn.MouseLeave:Connect(function()
-            if selectedTier ~= tierName then
-                btn.BackgroundColor3 = Color3.fromRGB(80, 80, 80) -- Reverts to gray
-            else
-                btn.BackgroundColor3 = Color3.fromRGB(0, 255, 0) -- Keep selected color
-            end
+        button.MouseLeave:Connect(function()
+            button.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
         end)
+        return button
+    end
 
-        -- Click effect
-        btn.MouseButton1Click:Connect(function()
-            selectedTier = tierName
-            -- Update all buttons to their default color
-            for _, otherBtn in pairs(main:GetChildren()) do
-                if otherBtn:IsA("TextButton") then
-                    otherBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80) -- Gray for unselected
+    -- ESP (zobrazenie objektov)
+    local function toggleESP()
+        hackConfig.espEnabled = not hackConfig.espEnabled
+        if hackConfig.espEnabled then
+            for _, obj in pairs(workspace:GetDescendants()) do
+                for _, target in pairs(targetObjects) do
+                    if obj.Name:find(target) and obj:IsA("BasePart") then
+                        local distance = (obj.Position - rootPart.Position).Magnitude
+                        if distance <= hackConfig.espDistance then
+                            local highlight = Instance.new("Highlight")
+                            highlight.FillColor = hackConfig.highlightColor
+                            highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+                            highlight.FillTransparency = 0.5
+                            highlight.OutlineTransparency = 0
+                            highlight.Parent = obj
+                        end
+                    end
                 end
             end
-            -- Highlight the clicked button
-            btn.BackgroundColor3 = Color3.fromRGB(0, 255, 0) -- Green for selected tier
-        end)
-
-        tierY = tierY + 30
+        else
+            for _, obj in pairs(workspace:GetDescendants()) do
+                if obj:FindFirstChildOfClass("Highlight") then
+                    obj:FindFirstChildOfClass("Highlight"):Destroy()
+                end
+            end
+        end
     end
 
-    -- Egg buttons
-    local y = tierY + 10
-    for name, data in pairs(eggs) do
-        local btn = Instance.new("TextButton", main)
-        btn.Size = UDim2.new(0.9, 0, 0, 40)
-        btn.Position = UDim2.new(0.05, 0, 0, y)
-        btn.Text = name
-        btn.BackgroundColor3 = Color3.fromRGB(80, 80, 80) -- Default gray egg button color
-        btn.TextColor3 = Color3.new(1, 1, 1)
-        btn.Font = Enum.Font.GothamBold
-        btn.TextSize = 16
-        Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
-
-        btn.MouseButton1Click:Connect(function()
-            for _, petData in ipairs(data.Pets) do
-                petData.Pet.Mythic = tierMap[selectedTier].Mythic
-                petData.Pet.Shiny = tierMap[selectedTier].Shiny
-            end
-            eggModule:Play(data)
-            for _, petData in pairs(data.Pets) do
-                announcePet(petData.Pet)
-            end
-        end)
-
-        y = y + 50
+    -- Auto-farm funkcia
+    local function toggleAutoFarm()
+        hackConfig.autoFarmEnabled = not hackConfig.autoFarmEnabled
+        if hackConfig.autoFarmEnabled then
+            spawn(function()
+                while hackConfig.autoFarmEnabled do
+                    for _, obj in pairs(workspace:GetDescendants()) do
+                        for _, target in pairs(targetObjects) do
+                            if obj.Name:find(target) and obj:IsA("BasePart") then
+                                local distance = (obj.Position - rootPart.Position).Magnitude
+                                if distance <= hackConfig.farmRadius then
+                                    humanoid.WalkToPoint = obj.Position
+                                    wait(0.5)
+                                end
+                            end
+                        end
+                    end
+                    wait(0.1)
+                end
+            end)
+        end
     end
+
+    -- Funkcia na zapnutie/vypnutie žiary
+    local function toggleGlow()
+        hackConfig.glowEnabled = not hackConfig.glowEnabled
+        if hackConfig.glowEnabled then
+            local bloom = Instance.new("BloomEffect")
+            bloom.Intensity = hackConfig.glowIntensity
+            bloom.Size = 24
+            bloom.Threshold = 0.8
+            bloom.Parent = Lighting
+        else
+            if Lighting:FindFirstChildOfClass("BloomEffect") then
+                Lighting:FindFirstChildOfClass("BloomEffect"):Destroy()
+            end
+        end
+    end
+
+    -- Funkcia na rýchlosť
+    local function toggleSpeedHack()
+        hackConfig.speedHackEnabled = not hackConfig.speedHackEnabled
+        if hackConfig.speedHackEnabled then
+            humanoid.WalkSpeed = humanoid.WalkSpeed * hackConfig.speedMultiplier
+        else
+            humanoid.WalkSpeed = 16
+        end
+    end
+
+    -- Tlačidlá na GUI
+    local buttonY = 50
+    createButton("Toggle ESP", buttonY, toggleESP)
+    buttonY = buttonY + 50
+    createButton("Toggle Auto-Farm", buttonY, toggleAutoFarm)
+    buttonY = buttonY + 50
+    createButton("Toggle Glow Effect", buttonY, toggleGlow)
+    buttonY = buttonY + 50
+    createButton("Toggle Speed Hack", buttonY, toggleSpeedHack)
+    buttonY = buttonY + 50
+
+    -- Nastavenie farby zvýraznenia
+    local colorLabel = Instance.new("TextLabel")
+    colorLabel.Size = UDim2.new(0.9, 0, 0, 20)
+    colorLabel.Position = UDim2.new(0.05, 0, 0, buttonY)
+    colorLabel.BackgroundTransparency = 1
+    colorLabel.Text = "Highlight Color (R, G, B):"
+    colorLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    colorLabel.Font = Enum.Font.Gotham
+    colorLabel.TextSize = 14
+    colorLabel.Parent = mainFrame
+
+    buttonY = buttonY + 30
+    local rBox = Instance.new("TextBox")
+    rBox.Size = UDim2.new(0.2, 0, 0, 30)
+    rBox.Position = UDim2.new(0.05, 0, 0, buttonY)
+    rBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    rBox.Text = "255"
+    rBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+    rBox.Font = Enum.Font.Gotham
+    rBox.TextSize = 14
+    rBox.Parent = mainFrame
+    local rCorner = Instance.new("UICorner")
+    rCorner.CornerRadius = UDim.new(0, 6)
+    rCorner.Parent = rBox
+
+    local gBox = Instance.new("TextBox")
+    gBox.Size = UDim2.new(0.2, 0, 0, 30)
+    gBox.Position = UDim2.new(0.3, 0, 0, buttonY)
+    gBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    gBox.Text = "0"
+    gBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+    gBox.Font = Enum.Font.Gotham
+    gBox.TextSize = 14
+    gBox.Parent = mainFrame
+    local gCorner = Instance.new("UICorner")
+    gCorner.CornerRadius = UDim.new(0, 6)
+    gCorner.Parent = gBox
+
+    local bBox = Instance.new("TextBox")
+    bBox.Size = UDim2.new(0.2, 0, 0, 30)
+    bBox.Position = UDim2.new(0.55, 0, 0, buttonY)
+    bBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    bBox.Text = "0"
+    bBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+    bBox.Font = Enum.Font.Gotham
+    bBox.TextSize = 14
+    bBox.Parent = mainFrame
+    local bCorner = Instance.new("UICorner")
+    bCorner.CornerRadius = UDim.new(0, 6)
+    bCorner.Parent = bBox
+
+    local applyColorButton = Instance.new("TextButton")
+    applyColorButton.Size = UDim2.new(0.2, 0, 0, 30)
+    applyColorButton.Position = UDim2.new(0.8, 0, 0, buttonY)
+    applyColorButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+    applyColorButton.Text = "Apply"
+    applyColorButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    applyColorButton.Font = Enum.Font.GothamBold
+    applyColorButton.TextSize = 14
+    applyColorButton.Parent = mainFrame
+    local applyCorner = Instance.new("UICorner")
+    applyCorner.CornerRadius = UDim.new(0, 6)
+    applyCorner.Parent = applyColorButton
+
+    applyColorButton.MouseButton1Click:Connect(function()
+        local r = tonumber(rBox.Text) or 255
+        local g = tonumber(gBox.Text) or 0
+        local b = tonumber(bBox.Text) or 0
+        hackConfig.highlightColor = Color3.fromRGB(r, g, b)
+        if hackConfig.espEnabled then
+            toggleESP()
+            toggleESP()
+        end
+    end)
+
+    -- Kredity
+    local creditLabel = Instance.new("TextLabel")
+    creditLabel.Size = UDim2.new(1, 0, 0, 20)
+    creditLabel.Position = UDim2.new(0, 0, 1, -30)
+    creditLabel.BackgroundTransparency = 1
+    creditLabel.Text = "Created by @hacker123"
+    creditLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    creditLabel.Font = Enum.Font.Gotham
+    creditLabel.TextSize = 14
+    creditLabel.TextXAlignment = Enum.TextXAlignment.Center
+    creditLabel.Parent = mainFrame
 end
+
+-- Spustenie GUI
+createGui()
+
+-- Oznam pri načítaní
+print("[Visual Hack] Loaded successfully!")
