@@ -1,329 +1,64 @@
--- Služby Robloxu
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService")
-local Lighting = game:GetService("Lighting")
+-- BGSI Visual Script for Roblox
+-- Developed for MuMuPlayer & Codex
+-- GitHub Loadstring Compatible
 
--- Nastavenie hráča
-local player = Players.LocalPlayer
-if not player then
-    warn("[Visual Hack] Hráč nebol nájdený!")
-    return
-end
-local playerGui = player:WaitForChild("PlayerGui", 5)
-if not playerGui then
-    warn("[Visual Hack] PlayerGui nebolo nájdené!")
-    return
-end
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoid = character:WaitForChild("Humanoid")
-local rootPart = character:WaitForChild("HumanoidRootPart")
+-- Vytvorenie GUI
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local PetNameLabel = Instance.new("TextLabel")
+local PetNameInput = Instance.new("TextBox")
+local EggTypeLabel = Instance.new("TextLabel")
+local EggTypeInput = Instance.new("TextBox")
+local ShinyLabel = Instance.new("TextLabel")
+local MythicLabel = Instance.new("TextLabel")
+local ShinyButton = Instance.new("TextButton")
+local MythicButton = Instance.new("TextButton")
+local HatchButton = Instance.new("TextButton")
 
--- Konfigurácia hacku
-local hackConfig = {
-    espEnabled = false,
-    autoFarmEnabled = false,
-    highlightColor = Color3.fromRGB(255, 0, 0),
-    glowEnabled = false,
-    speedHackEnabled = false,
-    speedMultiplier = 2,
-    farmRadius = 50,
-    glowIntensity = 2,
-    espDistance = 1000
-}
+-- Nastavenie GUI
+ScreenGui.Name = "BGSI_Visual_GUI"
+ScreenGui.Parent = game.CoreGui
 
--- Zoznam objektov na zvýraznenie
-local targetObjects = {
-    "Egg", "Chest", "Reward", "Coin", "Gem", "Treasure"
-}
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+MainFrame.Size = UDim2.new(0, 250, 0, 300)
+MainFrame.Position = UDim2.new(0.5, -125, 0.5, -150)
+MainFrame.Active = true
+MainFrame.Draggable = true
 
--- Funkcia na vytvorenie GUI
-local function createGui()
-    local screenGui = Instance.new("ScreenGui")
-    screenGui.Name = "VisualHackGui"
-    screenGui.Parent = playerGui
-    screenGui.ResetOnSpawn = false
-    screenGui.IgnoreGuiInset = true
-    screenGui.DisplayOrder = 100
+-- Pridanie pohybu
+MainFrame.Selectable = true
+MainFrame.Active = true
+MainFrame.Draggable = true
 
-    -- Hlavný rámec
-    local mainFrame = Instance.new("Frame")
-    mainFrame.Size = UDim2.new(0, 400, 0, 500)
-    mainFrame.Position = UDim2.new(0.5, -200, 0.5, -250)
-    mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    mainFrame.BorderSizePixel = 0
-    mainFrame.Parent = screenGui
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 12)
-    corner.Parent = mainFrame
+-- Pridanie pohybu tabuľky
+local dragging, dragInput, dragStart, startPos
 
-    -- Gradient na pozadí
-    local gradient = Instance.new("UIGradient")
-    gradient.Color = ColorSequence.new(Color3.fromRGB(30, 30, 30), Color3.fromRGB(50, 50, 50))
-    gradient.Rotation = 45
-    gradient.Parent = mainFrame
-
-    -- Nadpis
-    local titleLabel = Instance.new("TextLabel")
-    titleLabel.Size = UDim2.new(1, 0, 0, 40)
-    titleLabel.Position = UDim2.new(0, 0, 0, 0)
-    titleLabel.BackgroundTransparency = 1
-    titleLabel.Text = "Visual Hack v1.0"
-    titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    titleLabel.Font = Enum.Font.GothamBold
-    titleLabel.TextSize = 24
-    titleLabel.Parent = mainFrame
-
-    -- Tlačidlo na zatvorenie
-    local closeButton = Instance.new("TextButton")
-    closeButton.Size = UDim2.new(0, 30, 0, 30)
-    closeButton.Position = UDim2.new(1, -40, 0, 5)
-    closeButton.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
-    closeButton.Text = "X"
-    closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    closeButton.Font = Enum.Font.GothamBold
-    closeButton.TextSize = 16
-    closeButton.Parent = mainFrame
-    local closeCorner = Instance.new("UICorner")
-    closeCorner.CornerRadius = UDim.new(0, 6)
-    closeCorner.Parent = closeButton
-
-    -- Funkcia na zatvorenie GUI
-    closeButton.MouseButton1Click:Connect(function()
-        screenGui:Destroy()
-    end)
-
-    -- Dragovacia logika
-    local dragging = false
-    local dragInput, dragStart, startPos
-    mainFrame.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = true
-            dragStart = input.Position
-            startPos = mainFrame.Position
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                end
-            end)
-        end
-    end)
-    mainFrame.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement then
-            dragInput = input
-        end
-    end)
-    UserInputService.InputChanged:Connect(function(input)
-        if dragging and input == dragInput then
-            local delta = input.Position - dragStart
-            mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-        end
-    end)
-
-    -- Funkcia na vytvorenie tlačidla
-    local function createButton(name, positionY, callback)
-        local button = Instance.new("TextButton")
-        button.Size = UDim2.new(0.9, 0, 0, 40)
-        button.Position = UDim2.new(0.05, 0, 0, positionY)
-        button.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-        button.Text = name
-        button.TextColor3 = Color3.fromRGB(255, 255, 255)
-        button.Font = Enum.Font.GothamBold
-        button.TextSize = 16
-        button.Parent = mainFrame
-        local btnCorner = Instance.new("UICorner")
-        btnCorner.CornerRadius = UDim.new(0, 8)
-        btnCorner.Parent = button
-        button.MouseButton1Click:Connect(callback)
-        button.MouseEnter:Connect(function()
-            button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-        end)
-        button.MouseLeave:Connect(function()
-            button.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-        end)
-        return button
+MainFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = MainFrame.Position
     end
+end)
 
-    -- ESP (zobrazenie objektov)
-    local function toggleESP()
-        hackConfig.espEnabled = not hackConfig.espEnabled
-        if hackConfig.espEnabled then
-            for _, obj in pairs(workspace:GetDescendants()) do
-                for _, target in pairs(targetObjects) do
-                    if obj.Name:find(target) and obj:IsA("BasePart") then
-                        local distance = (obj.Position - rootPart.Position).Magnitude
-                        if distance <= hackConfig.espDistance then
-                            local highlight = Instance.new("Highlight")
-                            highlight.FillColor = hackConfig.highlightColor
-                            highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
-                            highlight.FillTransparency = 0.5
-                            highlight.OutlineTransparency = 0
-                            highlight.Parent = obj
-                        end
-                    end
-                end
-            end
-        else
-            for _, obj in pairs(workspace:GetDescendants()) do
-                if obj:FindFirstChildOfClass("Highlight") then
-                    obj:FindFirstChildOfClass("Highlight"):Destroy()
-                end
-            end
-        end
+MainFrame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInput = input
     end
+end)
 
-    -- Auto-farm funkcia
-    local function toggleAutoFarm()
-        hackConfig.autoFarmEnabled = not hackConfig.autoFarmEnabled
-        if hackConfig.autoFarmEnabled then
-            spawn(function()
-                while hackConfig.autoFarmEnabled do
-                    for _, obj in pairs(workspace:GetDescendants()) do
-                        for _, target in pairs(targetObjects) do
-                            if obj.Name:find(target) and obj:IsA("BasePart") then
-                                local distance = (obj.Position - rootPart.Position).Magnitude
-                                if distance <= hackConfig.farmRadius then
-                                    humanoid.WalkToPoint = obj.Position
-                                    wait(0.5)
-                                end
-                            end
-                        end
-                    end
-                    wait(0.1)
-                end
-            end)
-        end
+MainFrame.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
     end
+end)
 
-    -- Funkcia na zapnutie/vypnutie žiary
-    local function toggleGlow()
-        hackConfig.glowEnabled = not hackConfig.glowEnabled
-        if hackConfig.glowEnabled then
-            local bloom = Instance.new("BloomEffect")
-            bloom.Intensity = hackConfig.glowIntensity
-            bloom.Size = 24
-            bloom.Threshold = 0.8
-            bloom.Parent = Lighting
-        else
-            if Lighting:FindFirstChildOfClass("BloomEffect") then
-                Lighting:FindFirstChildOfClass("BloomEffect"):Destroy()
-            end
-        end
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and input == dragInput then
+        local delta = input.Position - dragStart
+        MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
     end
+end)
 
-    -- Funkcia na rýchlosť
-    local function toggleSpeedHack()
-        hackConfig.speedHackEnabled = not hackConfig.speedHackEnabled
-        if hackConfig.speedHackEnabled then
-            humanoid.WalkSpeed = humanoid.WalkSpeed * hackConfig.speedMultiplier
-        else
-            humanoid.WalkSpeed = 16
-        end
-    end
-
-    -- Tlačidlá na GUI
-    local buttonY = 50
-    createButton("Toggle ESP", buttonY, toggleESP)
-    buttonY = buttonY + 50
-    createButton("Toggle Auto-Farm", buttonY, toggleAutoFarm)
-    buttonY = buttonY + 50
-    createButton("Toggle Glow Effect", buttonY, toggleGlow)
-    buttonY = buttonY + 50
-    createButton("Toggle Speed Hack", buttonY, toggleSpeedHack)
-    buttonY = buttonY + 50
-
-    -- Nastavenie farby zvýraznenia
-    local colorLabel = Instance.new("TextLabel")
-    colorLabel.Size = UDim2.new(0.9, 0, 0, 20)
-    colorLabel.Position = UDim2.new(0.05, 0, 0, buttonY)
-    colorLabel.BackgroundTransparency = 1
-    colorLabel.Text = "Highlight Color (R, G, B):"
-    colorLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    colorLabel.Font = Enum.Font.Gotham
-    colorLabel.TextSize = 14
-    colorLabel.Parent = mainFrame
-
-    buttonY = buttonY + 30
-    local rBox = Instance.new("TextBox")
-    rBox.Size = UDim2.new(0.2, 0, 0, 30)
-    rBox.Position = UDim2.new(0.05, 0, 0, buttonY)
-    rBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    rBox.Text = "255"
-    rBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-    rBox.Font = Enum.Font.Gotham
-    rBox.TextSize = 14
-    rBox.Parent = mainFrame
-    local rCorner = Instance.new("UICorner")
-    rCorner.CornerRadius = UDim.new(0, 6)
-    rCorner.Parent = rBox
-
-    local gBox = Instance.new("TextBox")
-    gBox.Size = UDim2.new(0.2, 0, 0, 30)
-    gBox.Position = UDim2.new(0.3, 0, 0, buttonY)
-    gBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    gBox.Text = "0"
-    gBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-    gBox.Font = Enum.Font.Gotham
-    gBox.TextSize = 14
-    gBox.Parent = mainFrame
-    local gCorner = Instance.new("UICorner")
-    gCorner.CornerRadius = UDim.new(0, 6)
-    gCorner.Parent = gBox
-
-    local bBox = Instance.new("TextBox")
-    bBox.Size = UDim2.new(0.2, 0, 0, 30)
-    bBox.Position = UDim2.new(0.55, 0, 0, buttonY)
-    bBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    bBox.Text = "0"
-    bBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-    bBox.Font = Enum.Font.Gotham
-    bBox.TextSize = 14
-    bBox.Parent = mainFrame
-    local bCorner = Instance.new("UICorner")
-    bCorner.CornerRadius = UDim.new(0, 6)
-    bCorner.Parent = bBox
-
-    local applyColorButton = Instance.new("TextButton")
-    applyColorButton.Size = UDim2.new(0.2, 0, 0, 30)
-    applyColorButton.Position = UDim2.new(0.8, 0, 0, buttonY)
-    applyColorButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-    applyColorButton.Text = "Apply"
-    applyColorButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    applyColorButton.Font = Enum.Font.GothamBold
-    applyColorButton.TextSize = 14
-    applyColorButton.Parent = mainFrame
-    local applyCorner = Instance.new("UICorner")
-    applyCorner.CornerRadius = UDim.new(0, 6)
-    applyCorner.Parent = applyColorButton
-
-    applyColorButton.MouseButton1Click:Connect(function()
-        local r = tonumber(rBox.Text) or 255
-        local g = tonumber(gBox.Text) or 0
-        local b = tonumber(bBox.Text) or 0
-        hackConfig.highlightColor = Color3.fromRGB(r, g, b)
-        if hackConfig.espEnabled then
-            toggleESP()
-            toggleESP()
-        end
-    end)
-
-    -- Kredity
-    local creditLabel = Instance.new("TextLabel")
-    creditLabel.Size = UDim2.new(1, 0, 0, 20)
-    creditLabel.Position = UDim2.new(0, 0, 1, -30)
-    creditLabel.BackgroundTransparency = 1
-    creditLabel.Text = "Created by @hacker123"
-    creditLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-    creditLabel.Font = Enum.Font.Gotham
-    creditLabel.TextSize = 14
-    creditLabel.TextXAlignment = Enum.TextXAlignment.Center
-    creditLabel.Parent = mainFrame
-end
-
--- Spustenie GUI
-createGui()
-
--- Oznam pri načítaní
-print("[Visual Hack] Loaded successfully!")
+print("[BGSI] Main GUI Loaded Successfully")
