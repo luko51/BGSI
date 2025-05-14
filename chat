@@ -1,4 +1,4 @@
--- BGSI Visual Script for Roblox
+""-- BGSI Visual Script for Roblox
 -- Developed for MuMuPlayer & Codex
 -- GitHub Loadstring Compatible
 
@@ -24,41 +24,101 @@ MainFrame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
 MainFrame.Size = UDim2.new(0, 250, 0, 300)
 MainFrame.Position = UDim2.new(0.5, -125, 0.5, -150)
 MainFrame.Active = true
-MainFrame.Draggable = true
+MainFrame.Draggable = true -- Umožnenie presúvania tabuľky
 
--- Pridanie pohybu
-MainFrame.Selectable = true
-MainFrame.Active = true
-MainFrame.Draggable = true
+-- Pet Name Label
+PetNameLabel.Parent = MainFrame
+PetNameLabel.Text = "Pet Name:"
+PetNameLabel.Size = UDim2.new(1, -20, 0, 20)
+PetNameLabel.Position = UDim2.new(0, 10, 0, 10)
+PetNameLabel.BackgroundTransparency = 1
+PetNameLabel.TextColor3 = Color3.new(1, 1, 1)
+PetNameLabel.Font = Enum.Font.GothamBold
+PetNameLabel.TextSize = 14
 
--- Pridanie pohybu tabuľky
-local dragging, dragInput, dragStart, startPos
+-- Pet Name Input
+PetNameInput.Parent = MainFrame
+PetNameInput.PlaceholderText = "Enter pet name..."
+PetNameInput.Size = UDim2.new(1, -20, 0, 30)
+PetNameInput.Position = UDim2.new(0, 10, 0, 30)
+PetNameInput.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
+PetNameInput.TextColor3 = Color3.new(1, 1, 1)
 
-MainFrame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        startPos = MainFrame.Position
-    end
+-- Egg Type Label
+EggTypeLabel.Parent = MainFrame
+EggTypeLabel.Text = "Egg Type:"
+EggTypeLabel.Size = UDim2.new(1, -20, 0, 20)
+EggTypeLabel.Position = UDim2.new(0, 10, 0, 70)
+EggTypeLabel.BackgroundTransparency = 1
+EggTypeLabel.TextColor3 = Color3.new(1, 1, 1)
+EggTypeLabel.Font = Enum.Font.GothamBold
+EggTypeLabel.TextSize = 14
+
+-- Egg Type Input
+EggTypeInput.Parent = MainFrame
+EggTypeInput.PlaceholderText = "Select Egg"
+EggTypeInput.Size = UDim2.new(1, -20, 0, 30)
+EggTypeInput.Position = UDim2.new(0, 10, 0, 90)
+EggTypeInput.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
+EggTypeInput.TextColor3 = Color3.new(1, 1, 1)
+
+-- Shiny Label
+ShinyLabel.Parent = MainFrame
+ShinyLabel.Text = "Shiny:"
+ShinyLabel.Size = UDim2.new(0.25, -10, 0, 30)
+ShinyLabel.Position = UDim2.new(0, 10, 0, 130)
+ShinyLabel.BackgroundTransparency = 1
+ShinyLabel.TextColor3 = Color3.new(1, 1, 1)
+ShinyLabel.Font = Enum.Font.GothamBold
+ShinyLabel.TextSize = 14
+
+-- Shiny Button
+ShinyButton.Parent = MainFrame
+ShinyButton.Size = UDim2.new(0.25, -10, 0, 30)
+ShinyButton.Position = UDim2.new(0.25, 5, 0, 130)
+ShinyButton.BackgroundColor3 = Color3.new(0.8, 0.1, 0.1)
+ShinyButton.TextColor3 = Color3.new(1, 1, 1)
+ShinyButton.Text = ""
+
+-- Mythic Label
+MythicLabel.Parent = MainFrame
+MythicLabel.Text = "Mythic:"
+MythicLabel.Size = UDim2.new(0.25, -10, 0, 30)
+MythicLabel.Position = UDim2.new(0.5, 10, 0, 130)
+MythicLabel.BackgroundTransparency = 1
+MythicLabel.TextColor3 = Color3.new(1, 1, 1)
+MythicLabel.Font = Enum.Font.GothamBold
+MythicLabel.TextSize = 14
+
+-- Mythic Button
+MythicButton.Parent = MainFrame
+MythicButton.Size = UDim2.new(0.25, -10, 0, 30)
+MythicButton.Position = UDim2.new(0.75, 5, 0, 130)
+MythicButton.BackgroundColor3 = Color3.new(0.8, 0.1, 0.1)
+MythicButton.TextColor3 = Color3.new(1, 1, 1)
+MythicButton.Text = ""
+
+-- Hatch tlačidlo
+HatchButton.Parent = MainFrame
+HatchButton.Text = "Hatch Pet"
+HatchButton.Size = UDim2.new(1, -20, 0, 40)
+HatchButton.Position = UDim2.new(0, 10, 0, 180)
+HatchButton.BackgroundColor3 = Color3.new(0.1, 0.3, 0.5)
+HatchButton.TextColor3 = Color3.new(1, 1, 1)
+
+-- Kliknutie pre Shiny a Mythic
+local shinyActive = false
+local mythicActive = false
+
+ShinyButton.MouseButton1Click:Connect(function()
+    shinyActive = not shinyActive
+    ShinyButton.BackgroundColor3 = shinyActive and Color3.new(0, 0.8, 0.1) or Color3.new(0.8, 0.1, 0.1)
 end)
 
-MainFrame.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement then
-        dragInput = input
-    end
-end)
-
-MainFrame.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = false
-    end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-    if dragging and input == dragInput then
-        local delta = input.Position - dragStart
-        MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-    end
+MythicButton.MouseButton1Click:Connect(function()
+    mythicActive = not mythicActive
+    MythicButton.BackgroundColor3 = mythicActive and Color3.new(0, 0.8, 0.1) or Color3.new(0.8, 0.1, 0.1)
 end)
 
 print("[BGSI] Main GUI Loaded Successfully")
+""
