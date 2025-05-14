@@ -1,0 +1,77 @@
+-- Skript pre Roblox: Vizuálne otváranie vajíčka
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local player = Players.LocalPlayer
+local gui = Instance.new("ScreenGui")
+gui.Parent = player.PlayerGui
+gui.Name = "PetOpenGUI"
+
+-- Vytvorenie hlavného rámca
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 300, 0, 200)
+frame.Position = UDim2.new(0.5, -150, 0.5, -100)
+frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+frame.BorderSizePixel = 0
+frame.Parent = gui
+
+-- Textové pole pre zadanie mena peta
+local textBox = Instance.new("TextBox")
+textBox.Size = UDim2.new(0, 200, 0, 50)
+textBox.Position = UDim2.new(0.5, -100, 0.2, 0)
+textBox.PlaceholderText = "Zadaj meno peta"
+textBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+textBox.TextColor3 = Color3.fromRGB(0, 0, 0)
+textBox.Parent = frame
+
+-- Tlačidlo na spustenie animácie
+local button = Instance.new("TextButton")
+button.Size = UDim2.new(0, 100, 0, 50)
+button.Position = UDim2.new(0.5, -50, 0.6, 0)
+button.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+button.Text = "Otvoriť vajíčko"
+button.TextColor3 = Color3.fromRGB(255, 255, 255)
+button.Parent = frame
+
+-- Text na zobrazenie výsledku
+local resultLabel = Instance.new("TextLabel")
+resultLabel.Size = UDim2.new(0, 200, 0, 50)
+resultLabel.Position = UDim2.new(0.5, -100, 0.8, 0)
+resultLabel.BackgroundTransparency = 1
+resultLabel.Text = ""
+resultLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+resultLabel.Parent = frame
+
+-- Funkcia na animáciu vajíčka
+local function animateEgg()
+    -- Vytvorenie vajíčka (jednoduchý obdĺžnik ako placeholder)
+    local egg = Instance.new("Frame")
+    egg.Size = UDim2.new(0, 100, 0, 150)
+    egg.Position = UDim2.new(0.5, -50, 0.3, -75)
+    egg.BackgroundColor3 = Color3.fromRGB(255, 255, 200)
+    egg.BorderSizePixel = 0
+    egg.Parent = frame
+
+    -- Animácia "chvenia" vajíčka
+    local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Bounce, Enum.EasingDirection.Out, 2)
+    local tween = TweenService:Create(egg, tweenInfo, {Rotation = 10})
+    tween:Play()
+    wait(2)
+
+    -- Animácia "otvorenia" (zmiznutie vajíčka)
+    local fadeTween = TweenService:Create(egg, TweenInfo.new(1), {BackgroundTransparency = 1})
+    fadeTween:Play()
+    wait(1)
+
+    -- Zobrazenie mena peta
+    resultLabel.Text = "Získal si: " .. textBox.Text
+    egg:Destroy()
+end
+
+-- Pripojenie funkcie k tlačidlu
+button.MouseButton1Click:Connect(function()
+    if textBox.Text ~= "" then
+        animateEgg()
+    else
+        resultLabel.Text = "Zadaj meno peta!"
+    end
+end)
