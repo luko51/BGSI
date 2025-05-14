@@ -1,77 +1,124 @@
--- Skript pre Roblox: Vizuálne otváranie vajíčka
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local player = Players.LocalPlayer
 local gui = Instance.new("ScreenGui")
 gui.Parent = player.PlayerGui
 gui.Name = "PetOpenGUI"
+gui.IgnoreGuiInset = true -- Ignoruje horný panel Robloxu
 
--- Vytvorenie hlavného rámca
-local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 300, 0, 200)
-frame.Position = UDim2.new(0.5, -150, 0.5, -100)
-frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-frame.BorderSizePixel = 0
-frame.Parent = gui
+-- Hlavné GUI (vstupné okno)
+local inputFrame = Instance.new("Frame")
+inputFrame.Size = UDim2.new(0, 300, 0, 200)
+inputFrame.Position = UDim2.new(0.5, -150, 0.5, -100)
+inputFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+inputFrame.BorderSizePixel = 0
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 10)
+corner.Parent = inputFrame
+inputFrame.Parent = gui
 
--- Textové pole pre zadanie mena peta
+-- Textové pole
 local textBox = Instance.new("TextBox")
 textBox.Size = UDim2.new(0, 200, 0, 50)
 textBox.Position = UDim2.new(0.5, -100, 0.2, 0)
 textBox.PlaceholderText = "Zadaj meno peta"
 textBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 textBox.TextColor3 = Color3.fromRGB(0, 0, 0)
-textBox.Parent = frame
+textBox.Parent = inputFrame
 
--- Tlačidlo na spustenie animácie
+-- Tlačidlo
 local button = Instance.new("TextButton")
 button.Size = UDim2.new(0, 100, 0, 50)
 button.Position = UDim2.new(0.5, -50, 0.6, 0)
 button.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
 button.Text = "Otvoriť vajíčko"
 button.TextColor3 = Color3.fromRGB(255, 255, 255)
-button.Parent = frame
+button.Parent = inputFrame
 
--- Text na zobrazenie výsledku
-local resultLabel = Instance.new("TextLabel")
-resultLabel.Size = UDim2.new(0, 200, 0, 50)
-resultLabel.Position = UDim2.new(0.5, -100, 0.8, 0)
-resultLabel.BackgroundTransparency = 1
-resultLabel.Text = ""
-resultLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-resultLabel.Parent = frame
+-- Celoobrazovkové GUI pre animáciu
+local animFrame = Instance.new("Frame")
+animFrame.Size = UDim2.new(1, 0, 1, 0)
+animFrame.Position = UDim2.new(0, 0, 0, 0)
+animFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+animFrame.BackgroundTransparency = 1
+animFrame.Visible = false
+animFrame.Parent = gui
 
--- Funkcia na animáciu vajíčka
-local function animateEgg()
-    -- Vytvorenie vajíčka (jednoduchý obdĺžnik ako placeholder)
-    local egg = Instance.new("Frame")
-    egg.Size = UDim2.new(0, 100, 0, 150)
-    egg.Position = UDim2.new(0.5, -50, 0.3, -75)
-    egg.BackgroundColor3 = Color3.fromRGB(255, 255, 200)
-    egg.BorderSizePixel = 0
-    egg.Parent = frame
-
-    -- Animácia "chvenia" vajíčka
-    local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Bounce, Enum.EasingDirection.Out, 2)
-    local tween = TweenService:Create(egg, tweenInfo, {Rotation = 10})
-    tween:Play()
-    wait(2)
-
-    -- Animácia "otvorenia" (zmiznutie vajíčka)
-    local fadeTween = TweenService:Create(egg, TweenInfo.new(1), {BackgroundTransparency = 1})
+-- Animácia vajíčka
+local function animateEgg(petName)
+    -- Skry vstupné GUI
+    inputFrame.Visible = false
+    
+    -- Zobraz animáciu
+    animFrame.Visible = true
+    
+    -- Fade pozadie
+    local fadeTween = TweenService:Create(animFrame, TweenInfo.new(0.5), {BackgroundTransparency = 0.3})
     fadeTween:Play()
-    wait(1)
-
+    
+    -- Vytvor vajíčko (používame ImageLabel pre reálnejší vzhľad)
+    local eggImage = Instance.new("ImageLabel")
+    eggImage.Size = UDim2.new(0, 200, 0, 300)
+    eggImage.Position = UDim2.new(0.5, -100, 0.5, -150)
+    eggImage.Image = "rbxassetid://1234567890" -- Nahraj vlastné ID vajíčka (pozri nižšie)
+    eggImage.BackgroundTransparency = 1
+    eggImage.Parent = animFrame
+    
+    -- Častice (iskry)
+    local particle = Instance.new("ParticleEmitter")
+    particle.Texture = "rbxassetid://243728937" -- Textúra iskry
+    particle.Lifetime = NumberRange.new(1, 2)
+    particle.Rate = 100
+    particle.Speed = NumberRange.new(5, 10)
+    particle.Parent = eggImage
+    particle.Enabled = false
+    
+    -- Chvenie vajíčka
+    local shakeTween = TweenService:Create(eggImage, TweenInfo.new(1.5, Enum.EasingStyle.Bounce, Enum.EasingDirection.Out, 3), {Rotation = 5})
+    shakeTween:Play()
+    wait(1.5)
+    
+    -- Prasknutie (častice + zmiznutie vajíčka)
+    particle.Enabled = true
+    local crackTween = TweenService:Create(eggImage, TweenInfo.new(0.5), {ImageTransparency = 1, Size = UDim2.new(0, 250, 0, 350)})
+    crackTween:Play()
+    wait(0.5)
+    
     -- Zobrazenie mena peta
-    resultLabel.Text = "Získal si: " .. textBox.Text
-    egg:Destroy()
+    local petLabel = Instance.new("TextLabel")
+    petLabel.Size = UDim2.new(0, 400, 0, 100)
+    petLabel.Position = UDim2.new(0.5, -200, 0.5, -50)
+    petLabel.BackgroundTransparency = 1
+    petLabel.Text = "Získal si: " .. petName
+    petLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    petLabel.TextScaled = true
+    petLabel.Parent = animFrame
+    wait(2)
+    
+    -- Čistenie
+    particle.Enabled = false
+    local fadeOut = TweenService:Create(animFrame, TweenInfo.new(0.5), {BackgroundTransparency = 1})
+    fadeOut:Play()
+    wait(0.5)
+    animFrame.Visible = false
+    inputFrame.Visible = true
+    eggImage:Destroy()
+    petLabel:Destroy()
 end
 
--- Pripojenie funkcie k tlačidlu
+-- Spustenie animácie po kliknutí
 button.MouseButton1Click:Connect(function()
     if textBox.Text ~= "" then
-        animateEgg()
+        animateEgg(textBox.Text)
     else
-        resultLabel.Text = "Zadaj meno peta!"
+        local errorLabel = Instance.new("TextLabel")
+        errorLabel.Size = UDim2.new(0, 200, 0, 50)
+        errorLabel.Position = UDim2.new(0.5, -100, 0.8, 0)
+        errorLabel.BackgroundTransparency = 1
+        errorLabel.Text = "Zadaj meno peta!"
+        errorLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+        errorLabel.Parent = inputFrame
+        wait(2)
+        errorLabel:Destroy()
     end
 end)
