@@ -14,6 +14,7 @@ local MythicLabel = Instance.new("TextLabel")
 local ShinyButton = Instance.new("TextButton")
 local MythicButton = Instance.new("TextButton")
 local HatchButton = Instance.new("TextButton")
+local UIS = game:GetService("UserInputService")
 
 -- Nastavenie GUI
 ScreenGui.Name = "BGSI_Visual_GUI"
@@ -24,7 +25,7 @@ MainFrame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
 MainFrame.Size = UDim2.new(0, 250, 0, 300)
 MainFrame.Position = UDim2.new(0.5, -125, 0.5, -150)
 MainFrame.Active = true
-MainFrame.Draggable = true -- Umožnenie presúvania tabuľky
+MainFrame.Draggable = false -- Manuálne riešenie pre drag
 
 -- Pet Name Label
 PetNameLabel.Parent = MainFrame
@@ -106,18 +107,32 @@ HatchButton.Position = UDim2.new(0, 10, 0, 180)
 HatchButton.BackgroundColor3 = Color3.new(0.1, 0.3, 0.5)
 HatchButton.TextColor3 = Color3.new(1, 1, 1)
 
--- Kliknutie pre Shiny a Mythic
-local shinyActive = false
-local mythicActive = false
-
-ShinyButton.MouseButton1Click:Connect(function()
-    shinyActive = not shinyActive
-    ShinyButton.BackgroundColor3 = shinyActive and Color3.new(0, 0.8, 0.1) or Color3.new(0.8, 0.1, 0.1)
+-- Dragging Logic
+local dragging, dragInput, dragStart, startPos
+MainFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = MainFrame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
 end)
 
-MythicButton.MouseButton1Click:Connect(function()
-    mythicActive = not mythicActive
-    MythicButton.BackgroundColor3 = mythicActive and Color3.new(0, 0.8, 0.1) or Color3.new(0.8, 0.1, 0.1)
+MainFrame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInput = input
+    end
+end)
+
+UIS.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        local delta = input.Position - dragStart
+        MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
 end)
 
 print("[BGSI] Main GUI Loaded Successfully")
